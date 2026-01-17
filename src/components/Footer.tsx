@@ -45,7 +45,7 @@ const Footer = () => {
                 alt="Certifyied Logo" 
                 className="h-7 sm:h-8 md:h-9 w-auto object-contain"
               />
-              <span className="font-serif text-2xl font-medium">Certifyied</span>
+              
             </div>
             <p className="text-background/70 mb-6 max-w-sm">
               Helping ambitious brands scale through data-driven digital marketing
