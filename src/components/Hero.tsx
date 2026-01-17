@@ -28,7 +28,7 @@ const Hero = () => {
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground leading-tight mb-6 animate-fade-up" style={{ animationDelay: "0.2s" }}>
             Grow Your Business with{" "}
             <span className="text-primary relative">
-              Certified
+              Certifyied 
               <svg
                 className="absolute -bottom-2 left-0 w-full"
                 viewBox="0 0 200 12"
@@ -48,8 +48,9 @@ const Hero = () => {
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-up" style={{ animationDelay: "0.3s" }}>
-            We help ambitious brands scale through data-driven digital marketing
-            strategies. SEO, PPC, Social Media, and Content that converts.
+          At Certifyied, we don’t just market brands — we build digital success stories.
+
+
           </p>
 
           {/* CTA Buttons */}

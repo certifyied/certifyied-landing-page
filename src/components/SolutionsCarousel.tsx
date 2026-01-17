@@ -141,7 +141,7 @@ const SolutionsCarousel = () => {
       </div>
 
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-6 pl-4 md:pl-[calc((100%-72rem)/2+1rem)]">
+        <div className="flex gap-8 pl-4 md:pl-[calc((100%-72rem)/2+1rem)]">
           {solutions.map((solution, index) => (
             <div
               key={index}

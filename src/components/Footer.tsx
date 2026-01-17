@@ -1,4 +1,5 @@
 import { Mail, MapPin, Phone, Linkedin, Twitter, Instagram, Facebook } from "lucide-react";
+import certifyiedLogo from "@/assets/certifyied_logo.png";
 
 const Footer = () => {
   const footerLinks = {
@@ -39,9 +40,11 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">C</span>
-              </div>
+              <img 
+                src={certifyiedLogo} 
+                alt="Certifyied Logo" 
+                className="h-7 sm:h-8 md:h-9 w-auto object-contain"
+              />
               <span className="font-serif text-2xl font-medium">Certifyied</span>
             </div>
             <p className="text-background/70 mb-6 max-w-sm">
@@ -51,15 +54,15 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-background/70">
                 <Mail className="w-5 h-5 text-primary" />
-                <span>hello@certifyied.com</span>
+                <span>info@certifyied.com</span>
               </div>
               <div className="flex items-center gap-3 text-background/70">
                 <Phone className="w-5 h-5 text-primary" />
-                <span>+1 (555) 123-4567</span>
+                <span>+91 8189848498, +91 9544596699</span>
               </div>
               <div className="flex items-center gap-3 text-background/70">
                 <MapPin className="w-5 h-5 text-primary" />
-                <span>San Francisco, CA</span>
+                <span>28/275J Kakkanad, Kochi, Kerala - 682021</span>
               </div>
             </div>
           </div>

@@ -1,53 +1,39 @@
 import { useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import digitalMenuImage from "@/assets/digital_menu.jpg";
+import zigantureCardImage from "@/assets/ziganture_card.jpg";
 
-const plans = [
+const products = [
   {
-    name: "Starter",
-    price: "$1,499",
-    period: "/month",
-    description: "Perfect for small businesses starting their digital journey.",
+    title: "Scanfyi – Digital Menu Made Easy",
+    description:
+      "Scanfyi allows customers to view your menu instantly by scanning a QR code. No apps, no downloads—just a smooth, contactless experience.",
     features: [
-      "SEO Audit & Strategy",
-      "Social Media Management (2 platforms)",
-      "Monthly Performance Reports",
-      "Email Support",
-      "Basic Analytics Dashboard",
+      "Quick QR-based menu access",
+      "Clean, mobile-friendly design",
+      "Easy updates anytime",
+      "Cost effective and eco-friendly",
+      "Ideal for restaurants, cafés, and food businesses",
     ],
-    popular: false,
+    closingLine:
+      "Scanfyi helps your brand look modern while making ordering easier for customers.",
+    image: digitalMenuImage,
+    imageAlt: "Scanfyi Digital Menu",
   },
   {
-    name: "Growth",
-    price: "$3,499",
-    period: "/month",
-    description: "Ideal for growing businesses ready to scale their marketing.",
+    title: "Signature Card – Your Digital Identity",
+    description:
+      "The Signature Card replaces traditional paper business cards with a smart digital solution. Share your contact details, website, and social links with a simple tap or scan.",
     features: [
-      "Everything in Starter",
-      "PPC Campaign Management",
-      "Content Marketing (8 pieces/mo)",
-      "Social Media (4 platforms)",
-      "Bi-weekly Strategy Calls",
-      "A/B Testing & CRO",
-      "Priority Support",
+      "Instant sharing of contact details",
+      "Update information anytime",
+      "Professional and eco-friendly",
+      "Perfect for individuals, teams, and brands",
     ],
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "Tailored solutions for large organizations with complex needs.",
-    features: [
-      "Everything in Growth",
-      "Dedicated Account Manager",
-      "Custom Marketing Strategy",
-      "Unlimited Campaigns",
-      "24/7 Priority Support",
-      "Executive Reporting",
-      "Multi-brand Management",
-    ],
-    popular: false,
+    closingLine:
+      "Signature Cards help you leave a strong first impression every time.",
+    image: zigantureCardImage,
+    imageAlt: "Signature Card",
   },
 ];
 
@@ -59,7 +45,7 @@ const Pricing = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const cards = entry.target.querySelectorAll(".pricing-card");
+            const cards = entry.target.querySelectorAll(".product-card");
             cards.forEach((card, index) => {
               setTimeout(() => {
                 card.classList.add("animate-fade-up");
@@ -83,70 +69,59 @@ const Pricing = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider mb-4">
-            Pricing
+            Our Products
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-medium text-foreground mb-6">
-            Simple, Transparent Pricing
+            Innovative Digital Solutions
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Choose the plan that fits your business needs. All plans include our
-            commitment to delivering measurable results.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map((plan, index) => (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {products.map((product, index) => (
             <div
               key={index}
-              className={`pricing-card opacity-0 relative bg-card rounded-2xl p-8 border transition-all duration-300 hover:shadow-medium ${
-                plan.popular
-                  ? "border-primary shadow-glow scale-105 md:scale-110"
-                  : "border-border hover:border-primary/30"
-              }`}
+              className="product-card opacity-0 group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-medium hover:-translate-y-1"
             >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-primary text-primary-foreground text-sm font-semibold px-4 py-1 rounded-full">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {plan.name}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {plan.description}
-                </p>
-                <div className="flex items-baseline">
-                  <span className="text-4xl font-bold text-foreground">
-                    {plan.price}
-                  </span>
-                  <span className="text-muted-foreground ml-1">
-                    {plan.period}
-                  </span>
-                </div>
+              <div className="w-full h-64 overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.imageAlt}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
               </div>
-
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-primary" />
-                    </div>
-                    <span className="text-sm text-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                variant={plan.popular ? "hero" : "outline"}
-                className="w-full"
-                size="lg"
-              >
-                {plan.price === "Custom" ? "Contact Sales" : "Get Started"}
-              </Button>
+              <div className="p-8">
+                <h3 className="text-2xl font-semibold text-foreground mb-4">
+                  {product.title}
+                </h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  {product.description}
+                </p>
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-foreground mb-4">
+                    {index === 0
+                      ? "Why Scanfyi works"
+                      : "Why Signature Card stands out"}
+                  </h4>
+                  <ul className="space-y-3">
+                    {product.features.map((feature, featureIndex) => (
+                      <li
+                        key={featureIndex}
+                        className="flex items-start gap-3"
+                      >
+                        <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-3 h-3 text-primary" />
+                        </div>
+                        <span className="text-sm text-foreground">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {product.closingLine}
+                </p>
+              </div>
             </div>
           ))}
         </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import certifyiedLogo from "@/assets/certifyied_logo.png";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -18,7 +19,7 @@ const Navbar = () => {
     { name: "Services", href: "#services" },
     { name: "Solutions", href: "#solutions" },
     { name: "Testimonials", href: "#testimonials" },
-    { name: "Pricing", href: "#pricing" },
+    { name: "Our Products", href: "#pricing" },
   ];
 
   return (
@@ -31,12 +32,12 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-xl">C</span>
-          </div>
-          <span className="font-serif text-2xl font-medium text-foreground">
-            Certifyied
-          </span>
+        <img 
+           src={certifyiedLogo} 
+           alt="Certifyied Logo" 
+           className="h-7 sm:h-8 md:h-9 w-auto object-contain"
+         />
+          
         </a>
 
         {/* Desktop Navigation */}
@@ -53,11 +54,8 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm">
-            Log in
-          </Button>
-          <Button variant="default" size="sm">
-            Get Started
+          <Button variant="default" size="sm" asChild>
+            <a href="#contact">Contact Us</a>
           </Button>
         </div>
 
@@ -85,11 +83,10 @@ const Navbar = () => {
               </a>
             ))}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Button variant="ghost" className="w-full">
-                Log in
-              </Button>
-              <Button variant="default" className="w-full">
-                Get Started
+              <Button variant="default" className="w-full" asChild>
+                <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>
+                  Contact Us
+                </a>
               </Button>
             </div>
           </div>
