@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
 import { Check } from "lucide-react";
+import { motion } from "framer-motion";
 import digitalMenuImage from "@/assets/digital_menu.jpg";
 import zigantureCardImage from "@/assets/ziganture_card.jpg";
 
@@ -38,57 +38,76 @@ const products = [
 ];
 
 const Pricing = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const cards = entry.target.querySelectorAll(".product-card");
-            cards.forEach((card, index) => {
-              setTimeout(() => {
-                card.classList.add("animate-fade-up");
-              }, index * 100);
-            });
-          }
-        });
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
       },
-      { threshold: 0.1 }
-    );
+    },
+  };
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  };
 
   return (
-    <section id="pricing" ref={sectionRef} className="py-24 px-4 bg-secondary/30">
+    <section id="pricing" className="py-24 px-4 bg-secondary/30">
       <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider mb-4">
             Our Products
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-medium text-foreground mb-6">
             Innovative Digital Solutions
           </h2>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
           {products.map((product, index) => (
-            <div
+            <motion.div
               key={index}
-              className="product-card opacity-0 group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-medium hover:-translate-y-1"
+              className="group bg-card rounded-2xl overflow-hidden border border-border"
+              variants={itemVariants}
+              whileHover={{
+                y: -8,
+                borderColor: "rgba(var(--primary), 0.3)",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                transition: { duration: 0.3 },
+              }}
             >
-              <div className="w-full h-64 overflow-hidden">
+              <motion.div
+                className="w-full h-64 overflow-hidden"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
+              >
                 <img
                   src={product.image}
                   alt={product.imageAlt}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover"
                 />
-              </div>
+              </motion.div>
               <div className="p-8">
                 <h3 className="text-2xl font-semibold text-foreground mb-4">
                   {product.title}
@@ -104,9 +123,13 @@ const Pricing = () => {
                   </h4>
                   <ul className="space-y-3">
                     {product.features.map((feature, featureIndex) => (
-                      <li
+                      <motion.li
                         key={featureIndex}
                         className="flex items-start gap-3"
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: featureIndex * 0.1 }}
                       >
                         <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Check className="w-3 h-3 text-primary" />
@@ -114,7 +137,7 @@ const Pricing = () => {
                         <span className="text-sm text-foreground">
                           {feature}
                         </span>
-                      </li>
+                      </motion.li>
                     ))}
                   </ul>
                 </div>
@@ -122,9 +145,9 @@ const Pricing = () => {
                   {product.closingLine}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

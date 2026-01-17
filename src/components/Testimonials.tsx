@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
 import { Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -29,36 +29,38 @@ const testimonials = [
 ];
 
 const Testimonials = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const cards = entry.target.querySelectorAll(".testimonial-card");
-            cards.forEach((card, index) => {
-              setTimeout(() => {
-                card.classList.add("animate-fade-up");
-              }, index * 150);
-            });
-          }
-        });
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
       },
-      { threshold: 0.1 }
-    );
+    },
+  };
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
 
   return (
-    <section id="testimonials" ref={sectionRef} className="py-24 px-4">
+    <section id="testimonials" className="py-24 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider mb-4">
             Testimonials
           </span>
@@ -69,30 +71,50 @@ const Testimonials = () => {
             Don't just take our word for it. Here's what our clients have to say
             about working with Certifyied.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
           {testimonials.map((testimonial, index) => (
-            <div
+            <motion.div
               key={index}
-              className="testimonial-card opacity-0 bg-card rounded-2xl p-8 border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-medium"
+              className="bg-card rounded-2xl p-8 border border-border"
+              variants={itemVariants}
+              whileHover={{
+                y: -8,
+                borderColor: "rgba(var(--primary), 0.3)",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                transition: { duration: 0.3 },
+              }}
             >
               <div className="flex gap-1 mb-6">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star
+                  <motion.div
                     key={i}
-                    className="w-5 h-5 fill-primary text-primary"
-                  />
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <Star className="w-5 h-5 fill-primary text-primary" />
+                  </motion.div>
                 ))}
               </div>
               <p className="text-foreground leading-relaxed mb-6">
                 "{testimonial.content}"
               </p>
               <div className="flex items-center gap-4">
-                <img
+                <motion.img
                   src={testimonial.image}
                   alt={testimonial.name}
                   className="w-12 h-12 rounded-full object-cover"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.2 }}
                 />
                 <div>
                   <div className="font-semibold text-foreground">
@@ -103,9 +125,9 @@ const Testimonials = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

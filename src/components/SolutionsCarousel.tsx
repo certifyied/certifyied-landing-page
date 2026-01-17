@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight, TrendingUp, Users, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 const solutions = [
   {
@@ -54,7 +55,6 @@ const SolutionsCarousel = () => {
   });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(true);
-  const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -82,33 +82,16 @@ const SolutionsCarousel = () => {
     };
   }, [emblaApi]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-up");
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section
-      id="solutions"
-      ref={sectionRef}
-      className="py-24 bg-secondary/30 opacity-0"
-    >
+    <section id="solutions" className="py-24 bg-secondary/30">
       <div className="container mx-auto max-w-6xl px-4 mb-12">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <motion.div
+          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <div>
             <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider mb-4">
               Case Studies
@@ -118,44 +101,70 @@ const SolutionsCarousel = () => {
             </h2>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => emblaApi?.scrollPrev()}
-              disabled={!canScrollPrev}
-              className="rounded-full"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => emblaApi?.scrollNext()}
-              disabled={!canScrollNext}
-              className="rounded-full"
-            >
-              <ArrowRight className="w-5 h-5" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => emblaApi?.scrollPrev()}
+                disabled={!canScrollPrev}
+                className="rounded-full"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => emblaApi?.scrollNext()}
+                disabled={!canScrollNext}
+                className="rounded-full"
+              >
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-8 pl-4 md:pl-[calc((100%-72rem)/2+1rem)]">
           {solutions.map((solution, index) => (
-            <div
+            <motion.div
               key={index}
               className="flex-shrink-0 w-[320px] md:w-[400px] group"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
             >
-              <div className="bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-medium">
-                <div className="relative h-48 overflow-hidden">
+              <motion.div
+                className="bg-card rounded-2xl overflow-hidden border border-border"
+                whileHover={{
+                  y: -8,
+                  borderColor: "rgba(var(--primary), 0.3)",
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  transition: { duration: 0.3 },
+                }}
+              >
+                <motion.div
+                  className="relative h-48 overflow-hidden"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <img
                     src={solution.image}
                     alt={solution.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                  <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                  <motion.div
+                    className="absolute bottom-4 left-4 flex items-center gap-2"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 }}
+                  >
                     <div className="bg-primary rounded-lg p-2">
                       <solution.icon className="w-5 h-5 text-primary-foreground" />
                     </div>
@@ -163,8 +172,8 @@ const SolutionsCarousel = () => {
                       <div className="text-2xl font-bold">{solution.metric}</div>
                       <div className="text-xs opacity-80">{solution.metricLabel}</div>
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-foreground mb-2">
                     {solution.title}
@@ -173,8 +182,8 @@ const SolutionsCarousel = () => {
                     {solution.description}
                   </p>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           ))}
         </div>
       </div>

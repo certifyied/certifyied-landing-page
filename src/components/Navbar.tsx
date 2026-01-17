@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import certifyiedLogo from "@/assets/certifyied_logo.png";
 
 const Navbar = () => {
@@ -23,76 +24,118 @@ const Navbar = () => {
   ];
 
   return (
-    <nav
+    <motion.nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? "bg-card/90 backdrop-blur-md shadow-soft py-3"
           : "bg-transparent py-5"
       }`}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2">
-        <img 
-           src={certifyiedLogo} 
-           alt="Certifyied Logo" 
-           className="h-7 sm:h-8 md:h-9 w-auto object-contain"
-         />
-          
-        </a>
+        <motion.a
+          href="#"
+          className="flex items-center gap-2"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <img
+            src={certifyiedLogo}
+            alt="Certifyied Logo"
+            className="h-7 sm:h-8 md:h-9 w-auto object-contain"
+          />
+        </motion.a>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
+          {navLinks.map((link, index) => (
+            <motion.a
               key={link.name}
               href={link.href}
               className="text-foreground/70 hover:text-primary transition-colors duration-200 font-medium"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 + 0.2 }}
+              whileHover={{ y: -2 }}
             >
               {link.name}
-            </a>
+            </motion.a>
           ))}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="default" size="sm" asChild>
-            <a href="#contact">Contact Us</a>
-          </Button>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Button variant="default" size="sm" asChild>
+              <a href="#contact">Contact Us</a>
+            </Button>
+          </motion.div>
         </div>
 
         {/* Mobile Menu Button */}
-        <button
+        <motion.button
           className="md:hidden p-2"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          whileTap={{ scale: 0.9 }}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        </motion.button>
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-card shadow-medium p-4 animate-fade-up">
-          <div className="flex flex-col gap-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-foreground/70 hover:text-primary transition-colors duration-200 font-medium py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            className="md:hidden absolute top-full left-0 right-0 bg-card shadow-medium p-4"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="flex flex-col gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              {navLinks.map((link, index) => (
+                <motion.a
+                  key={link.name}
+                  href={link.href}
+                  className="text-foreground/70 hover:text-primary transition-colors duration-200 font-medium py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ x: 5 }}
+                >
+                  {link.name}
+                </motion.a>
+              ))}
+              <motion.div
+                className="flex flex-col gap-2 pt-4 border-t border-border"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
               >
-                {link.name}
-              </a>
-            ))}
-            <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Button variant="default" className="w-full" asChild>
-                <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>
-                  Contact Us
-                </a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </nav>
+                <Button variant="default" className="w-full" asChild>
+                  <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>
+                    Contact Us
+                  </a>
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 };
 
