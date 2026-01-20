@@ -80,6 +80,9 @@ export default {
         'strong': 'var(--shadow-lg)',
         'glow': 'var(--shadow-glow)',
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(circle, var(--tw-gradient-stops))',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

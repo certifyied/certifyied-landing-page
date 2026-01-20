@@ -1,19 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Serif+Display:ital@0;1&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Serif+Display:ital@0;1&display=swap');
-
 @layer base {
   :root {
     /* Certifyied Brand Colors */
-    --background: 43 33% 93%;
+    --background: 0 0% 100%;
     --foreground: 93 20% 15%;
 
-    --card: 0 0% 100%;
+    --card: 43 20% 98%;
     --card-foreground: 93 20% 15%;
 
-    --popover: 0 0% 100%;
+    --popover: 43 20% 98%;
     --popover-foreground: 93 20% 15%;
 
     --primary: 93 54% 29%;
@@ -203,5 +203,9 @@
 
   .animate-slide-left {
     animation: slide-left 30s linear infinite;
+  }
+
+  .bg-gradient-radial {
+    background-image: radial-gradient(circle, var(--tw-gradient-stops));
   }
 }
