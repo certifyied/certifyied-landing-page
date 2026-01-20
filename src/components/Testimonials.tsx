@@ -3,27 +3,51 @@ import { motion } from "framer-motion";
 
 const testimonials = [
   {
-    name: "Sarah Johnson",
-    role: "CEO, TechStart Inc.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+    name: "Cristo Kayalakkam",
+    role: "CEO – Dynamic Control System",
+    image: "https://ui-avatars.com/api/?name=Cristo+Kayalakkam&size=100&background=random",
     content:
-      "Certifyied transformed our digital presence. Our organic traffic increased by 300% in just 6 months. Their team is responsive, strategic, and truly cares about results.",
+      "Partnering with this certified digital marketing and advertising company was a turning point for our brand. Their website optimization and SEO dynamic control system helped us achieve consistent growth and better online visibility. The team understands data-driven strategies and delivers measurable results. Highly recommended for scalable digital success.",
     rating: 5,
   },
   {
-    name: "Michael Chen",
-    role: "Marketing Director, GrowthCo",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+    name: "Mishal Thambi",
+    role: "CEO – Dosa King",
+    image: "https://ui-avatars.com/api/?name=Mishal+Thambi&size=100&background=random",
     content:
-      "The ROI we've seen from their PPC campaigns is incredible. They reduced our cost per acquisition by 45% while increasing conversions. Highly recommend!",
+      "What stood out most was their transparent and structured approach to website development and SEO strategy. Every step was clearly explained, and the execution aligned perfectly with our business goals at Dosa King. As a certified digital marketing agency, their expertise clearly reflects in performance, visibility, and results. A truly professional and reliable experience.",
     rating: 5,
   },
   {
-    name: "Emily Rodriguez",
-    role: "Founder, Bloom Beauty",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+    name: "Base Mathew",
+    role: "CEO – Hotel Periyar",
+    image: "https://ui-avatars.com/api/?name=Base+Mathew&size=100&background=random",
     content:
-      "Our social media engagement skyrocketed after partnering with Certifyied. They understand our brand voice perfectly and create content that resonates with our audience.",
+      "We trusted this team with our hotel's social media marketing, and the impact was remarkable. Engagement, reach, and brand visibility improved significantly. They understand hospitality branding and digital platforms deeply. One of the most reliable digital marketing and advertising companies we've worked with.",
+    rating: 5,
+  },
+  {
+    name: "Madhu",
+    role: "CEO – MaxFun",
+    image: "https://ui-avatars.com/api/?name=Madhu&size=100&background=random",
+    content:
+      "For MaxFun, we needed creative and consistent social media management, and this certified agency delivered beyond expectations. Their campaigns improved our brand recall and customer interaction in a short time. A skilled, responsive, and result-focused digital marketing team.",
+    rating: 5,
+  },
+  {
+    name: "Dr. Sailee",
+    role: "CEO – Dr. Sailee's Dental Clinic",
+    image: "https://ui-avatars.com/api/?name=Dr+Sailee&size=100&background=random",
+    content:
+      "Their SEO strategies helped our dental clinic reach the right audience and improve online search visibility. The team is professional, ethical, and well-versed in healthcare marketing. We saw clear improvements in website traffic and patient inquiries. Truly result-oriented service.",
+    rating: 5,
+  },
+  {
+    name: "Harikumar",
+    role: "CEO – EduPulse",
+    image: "https://ui-avatars.com/api/?name=Harikumar&size=100&background=random",
+    content:
+      "Choosing this certified digital marketing and advertising company for Google ranking and SEO performance was the right decision. Our keyword positions improved steadily, and overall digital presence became stronger. Their expertise, support, and consistency make them a trusted long-term partner.",
     rating: 5,
   },
 ];
