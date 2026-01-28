@@ -86,7 +86,7 @@ const Hero = () => {
           >
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">
-              Trusted by 500+ businesses worldwide
+              Trusted by 5000+ businesses worldwide
             </span>
           </motion.div>
 
