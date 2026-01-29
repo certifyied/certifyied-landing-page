@@ -28,10 +28,10 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
+    { icon: Linkedin, href: "https://www.linkedin.com/company/74279861/admin/dashboard/", label: "LinkedIn" },
     { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Facebook, href: "#", label: "Facebook" },
+    { icon: Instagram, href: "https://www.instagram.com/certifyied_?igsh=MWd5cm5nNmczMDBldA==", label: "Instagram" },
+    { icon: Facebook, href: "https://www.facebook.com/Certifyied", label: "Facebook" },
   ];
 
   return (
