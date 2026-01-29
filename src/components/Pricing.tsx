@@ -7,7 +7,7 @@ const products = [
   {
     title: "Scanfyi – Digital Menu Made Easy",
     description:
-      "Scanfyi allows customers to view your menu instantly by scanning a QR code. No apps, no downloads—just a smooth, contactless experience.",
+      "Scanfyi lets customers view your menu instantly by scanning a QR code. No apps, no downloads—just a smooth, contactless experience. Designed and promoted by the best digital marketing agency in Kochi, we ensure maximum reach and engagement for your restaurant.",
     features: [
       "Quick QR-based menu access",
       "Clean, mobile-friendly design",
@@ -21,9 +21,9 @@ const products = [
     imageAlt: "Scanfyi Digital Menu",
   },
   {
-    title: "Signature Card – Your Digital Identity",
+    title: "Zignature Card – Your Digital Identity",
     description:
-      "The Signature Card replaces traditional paper business cards with a smart digital solution. Share your contact details, website, and social links with a simple tap or scan.",
+      "The Zignature Card replaces traditional paper business cards with a smart digital solution. Share your contact details, website, and social links instantly with a simple tap or scan. Promoted and supported by the best digital marketing agency in Kochi, ensuring your digital identity reaches the right audience.",
     features: [
       "Instant sharing of contact details",
       "Update information anytime",
@@ -55,7 +55,7 @@ const Pricing = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        ease: "easeOut",
+        ease: "easeOut" as const,
       },
     },
   };

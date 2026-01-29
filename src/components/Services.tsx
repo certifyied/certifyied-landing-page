@@ -19,7 +19,7 @@ const services = [
     icon: Search,
     title: "360° Google Services",
     description:
-      "We help your business rank higher on Google, appear on Maps, and gain more customer calls through optimized profiles, local SEO, and ads.",
+      "We help your business rank higher on Google, appear on Maps, and gain more customer calls as the Best Google 360 Provider in India through optimized profiles, local SEO, and high-performing ads.",
     color: "bg-emerald-500/10 text-emerald-600",
     image: google360Image,
   },
@@ -35,7 +35,7 @@ const services = [
     icon: Share2,
     title: "Performance Marketing",
     description:
-      "ROI-focused advertising campaigns on Google, Facebook, and Instagram that drive real leads, calls, and conversions.",
+      "We deliver ROI-focused advertising campaigns on Google, Facebook, and Instagram, making us the best Performance Marketing  service in Kochi  and a leader in best digital marketing agency  in Kochi, driving real leads, calls, and conversions.",
     color: "bg-purple-500/10 text-purple-600",
     image: performanceMarketingImage,
   },
@@ -43,23 +43,23 @@ const services = [
     icon: FileText,
     title: "Social Media Marketing",
     description:
-      "Creative and consistent social media management that builds trust, increases engagement, and converts followers into customers.",
+      "We provide creative and consistent social media management, making us the best Social Media Marketing service in Kochi and a leader in best digital marketing agency in Kochi   , building trust, increasing engagement, and converting followers into customers.",
     color: "bg-orange-500/10 text-orange-600",
     image: socialMediaMarketingImage,
   },
   {
     icon: Code,
-    title: "Web Development",
+    title: "Seo Optimization",
     description:
-      "Custom, responsive, and high-performance websites designed to elevate your brand, improve user experience, and drive business growth across all devices.",
+      "Custom, responsive, and high-performance websites designed to elevate your brand, improve user experiCertifyied offers the best SEO service in Kochi, helping your business rank higher on Google, boost organic traffic, and attract customers with expert local SEO, on-page optimization, and targeted strategies.",
     color: "bg-pink-500/10 text-pink-600",
     image: webDevImage,
   },
   {
     icon: Smartphone,
-    title: "App Development",
+    title: "Web & App Development",
     description:
-      "Scalable and user-friendly mobile and web applications built to deliver seamless functionality, performance, and engaging digital experiences.",
+      "We build scalable and user-friendly mobile and web applications as the best digital marketing agency in Kochi, delivering seamless functionality, high performance, and engaging digital experiences.",
     color: "bg-cyan-500/10 text-cyan-600",
     image: appDevImage,
   },
@@ -83,7 +83,7 @@ const Services = () => {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: "easeOut" as const,
       },
     },
   };
@@ -116,7 +116,7 @@ const Services = () => {
             Everything You Need to Grow
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Certifyied delivers smart digital solutions that boost visibility, attract the right audience, and turn leads into loyal customers through result-driven strategies.
+           Certifyied delivers smart digital solutions as the Best Google 360 Provider in India and the Best Digital Marketing Agency in Kochi, boosting visibility, attracting the right audience, and turning leads into loyal customers through result-driven strategies.
           </p>
         </motion.div>
 

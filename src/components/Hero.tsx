@@ -95,9 +95,9 @@ const Hero = () => {
             className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground leading-tight mb-6"
             variants={itemVariants}
           >
-            Grow Your Business with{" "}
+            Best{" "}
             <span className="text-primary relative">
-              Certifyied 
+              Google 360  
               <svg
                 className="absolute -bottom-2 left-0 w-full"
                 viewBox="0 0 200 12"
@@ -112,8 +112,24 @@ const Hero = () => {
                 />
               </svg>
             </span>{" "}
-            Marketing Experts
-          </motion.h1>
+            Provider and    {" "} <span className="text-primary relative">
+              digital marketing 
+              <svg
+                className="absolute -bottom-2 left-0 w-full"
+                viewBox="0 0 200 12"
+                fill="none"
+              >
+                <path
+                  d="M2 10C50 2 150 2 198 10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  className="text-primary/40"
+                />
+              </svg>
+            </span>{" "} Agency in India
+      </motion.h1>
+
 
           {/* Subheadline */}
           <motion.p
