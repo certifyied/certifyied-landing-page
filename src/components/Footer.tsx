@@ -1,15 +1,16 @@
 import { Mail, MapPin, Phone, Linkedin, Twitter, Instagram, Facebook } from "lucide-react";
 import { motion } from "framer-motion";
-import certifyiedLogo from "@/assets/certifyied_logo.png";
+import anotherCertifyiedLogo from "@/assets/another_certifyied_logo.png";
 
 const Footer = () => {
   const footerLinks = {
     Services: [
-      { name: "SEO Optimization", href: "#" },
-      { name: "PPC Advertising", href: "#" },
-      { name: "Social Media", href: "#" },
-      { name: "Content Marketing", href: "#" },
-      { name: "Email Marketing", href: "#" },
+      { name: "360° Google Services", href: "#services" },
+      { name: "Digital Marketing", href: "#services" },
+      { name: "Performance Marketing", href: "#services" },
+      { name: "Social Media Marketing", href: "#services" },
+      { name: "Seo Optimization", href: "#services" },
+      { name: "Web & App Development", href: "#services" },
     ],
     Company: [
       { name: "About Us", href: "#" },
@@ -54,7 +55,7 @@ const Footer = () => {
           >
             <div className="flex items-center gap-2 mb-4">
               <motion.img
-                src={certifyiedLogo}
+                src={anotherCertifyiedLogo}
                 alt="Certifyied Logo"
                 className="h-7 sm:h-8 md:h-9 w-auto object-contain"
                 whileHover={{ scale: 1.05 }}

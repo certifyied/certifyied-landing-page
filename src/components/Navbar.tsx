@@ -74,7 +74,7 @@ const Navbar = () => {
             whileTap={{ scale: 0.95 }}
           >
             <Button variant="default" size="sm" asChild>
-              <a href="#contact">Contact Us</a>
+              <a href="tel:+918189848498" aria-label="Call Certifyied for consultation">Contact Us</a>
             </Button>
           </motion.div>
         </div>
@@ -126,7 +126,7 @@ const Navbar = () => {
                 transition={{ delay: 0.4 }}
               >
                 <Button variant="default" className="w-full" asChild>
-                  <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>
+                  <a href="tel:+918189848498" aria-label="Call Certifyied for consultation" onClick={() => setIsMobileMenuOpen(false)}>
                     Contact Us
                   </a>
                 </Button>

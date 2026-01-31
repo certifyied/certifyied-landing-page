@@ -106,18 +106,12 @@ const CTASection = () => {
                 <Button
                   size="xl"
                   className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 group"
+                  asChild
                 >
-                  Get Free Audit
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  size="xl"
-                  variant="ghost"
-                  className="text-primary-foreground hover:bg-primary-foreground/10"
-                >
-                  Schedule a Call
+                  <a href="tel:+918189848498" aria-label="Call Certifyied for consultation">
+                    Get Free Audit
+                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  </a>
                 </Button>
               </motion.div>
             </motion.div>

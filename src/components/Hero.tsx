@@ -145,9 +145,11 @@ const Hero = () => {
             variants={itemVariants}
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="hero" size="lg" className="group">
-                Start Free Consultation
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <Button variant="hero" size="lg" className="group" asChild>
+                <a href="tel:+918189848498" aria-label="Call Certifyied for consultation">
+                  Start Free Consultation
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </a>
               </Button>
             </motion.div>
           </motion.div>
