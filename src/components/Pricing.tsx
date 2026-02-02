@@ -31,9 +31,9 @@ const products = [
       "Perfect for individuals, teams, and brands",
     ],
     closingLine:
-      "Signature Cards help you leave a strong first impression every time.",
+      "zignature Cards help you leave a strong first impression every time.",
     image: zigantureCardImage,
-    imageAlt: "Signature Card",
+    imageAlt: "Zignature Card",
   },
 ];
 
@@ -119,7 +119,7 @@ const Pricing = () => {
                   <h4 className="text-lg font-semibold text-foreground mb-4">
                     {index === 0
                       ? "Why Scanfyi works"
-                      : "Why Signature Card stands out"}
+                      : "Why Zignature Card stands out"}
                   </h4>
                   <ul className="space-y-3">
                     {product.features.map((feature, featureIndex) => (
