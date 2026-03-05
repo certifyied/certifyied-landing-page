@@ -127,7 +127,7 @@
 //                   className="text-primary/40"
 //                 />
 //               </svg>
-//             </span>{" "} Agency in India
+//             </span>{" "} company in India
 //       </motion.h1>
 
 
@@ -364,7 +364,7 @@ const Hero = () => {
     <span className="text-pink-600">digital marketing</span>
   </span>
 
-  <span className="text-black"> Agency in India</span>
+  <span className="text-black"> company in India</span>
 </motion.h1>
 
           {/* Subheadline */}

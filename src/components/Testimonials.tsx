@@ -7,7 +7,7 @@ const testimonials = [
     role: "CEO – Dynamic Control System",
     image: "https://ui-avatars.com/api/?name=Cristo+Kayalakkam&size=100&background=random",
     content:
-      "Partnering with this certified digital marketing and advertising company was a turning point for our brand. Their website optimization and advanced SEO control systems helped us achieve consistent growth and stronger online visibility. The team’s data-driven approach delivers measurable results. Highly recommended as the Best Google 360 Provider in India and the Best Digital Marketing Agency in Kochi.",
+      "Partnering with this certified digital marketing and advertising company was a turning point for our brand. Their website optimization and advanced SEO control systems helped us achieve consistent growth and stronger online visibility. The team’s data-driven approach delivers measurable results. Highly recommended as the Best Google 360 Provider in India and the Best Digital Marketing company in Kochi.",
     rating: 5,
   },
   {
@@ -15,7 +15,7 @@ const testimonials = [
     role: "CEO – Dosa King",
     image: "https://ui-avatars.com/api/?name=Mishal+Thambi&size=100&background=random",
     content:
-      "What stood out most was their transparent and structured approach to website development and SEO strategy. Every step was clearly explained, and the execution aligned perfectly with our business goals at Dosa King. As a certified digital marketing agency, their expertise is evident in performance, visibility, and measurable results. Highly recommended as the Best Google 360 Provider in India and the Best Digital Marketing Agency in Kochi",
+      "What stood out most was their transparent and structured approach to website development and SEO strategy. Every step was clearly explained, and the execution aligned perfectly with our business goals at Dosa King. As a certified digital marketing company, their expertise is evident in performance, visibility, and measurable results. Highly recommended as the Best Google 360 Provider in India and the Best Digital Marketing company in Kochi",
     rating: 5,
   },
   {
@@ -23,7 +23,7 @@ const testimonials = [
     role: "CEO – Hotel Periyar",
     image: "https://ui-avatars.com/api/?name=Base+Mathew&size=100&background=random",
     content:
-      "We trusted this team with our hotel’s social media marketing, and the impact was remarkable. Engagement, reach, and brand visibility improved significantly. Their deep understanding of hospitality branding and digital platforms sets them apart. One of the most reliable partners we’ve worked with — truly the Best Google 360 Provider in India and the Best Digital Marketing Agency in Kochi",
+      "We trusted this team with our hotel’s social media marketing, and the impact was remarkable. Engagement, reach, and brand visibility improved significantly. Their deep understanding of hospitality branding and digital platforms sets them apart. One of the most reliable partners we’ve worked with — truly the Best Google 360 Provider in India and the Best Digital Marketing company in Kochi",
     rating: 5,
   },
   {
@@ -31,7 +31,7 @@ const testimonials = [
     role: "CEO – MaxFun",
     image: "https://ui-avatars.com/api/?name=Madhu&size=100&background=random",
     content:
-      "For MaxFun, we needed creative and consistent social media management, and this certified agency delivered beyond expectations. Their campaigns boosted our brand recall and customer interaction in a short time. A skilled, responsive, and result-focused digital marketing team — truly the Best Google 360 Provider in India and the Best Digital Marketing Agency in Kochi.",
+      "For MaxFun, we needed creative and consistent social media management, and this certified company delivered beyond expectations. Their campaigns boosted our brand recall and customer interaction in a short time. A skilled, responsive, and result-focused digital marketing team — truly the Best Google 360 Provider in India and the Best Digital Marketing company in Kochi.",
     rating: 5,
   },
   {
@@ -39,7 +39,7 @@ const testimonials = [
     role: "CEO – Dr. Sailee's Dental Clinic",
     image: "https://ui-avatars.com/api/?name=Dr+Sailee&size=100&background=random",
     content:
-      "This certified agency’s SEO strategies allowed our dental clinic to connect with the right audience and boost online visibility. Professional, ethical, and expert in healthcare marketing, their team delivered measurable results in website traffic and patient inquiries. Without a doubt, the Best Google 360 Provider in India and the Best Digital Marketing Agency in Kochi.",
+      "This certified company’s SEO strategies allowed our dental clinic to connect with the right audience and boost online visibility. Professional, ethical, and expert in healthcare marketing, their team delivered measurable results in website traffic and patient inquiries. Without a doubt, the Best Google 360 Provider in India and the Best Digital Marketing company in Kochi.",
     rating: 5,
   },
   {
@@ -47,7 +47,7 @@ const testimonials = [
     role: "CEO – EduPulse",
     image: "https://ui-avatars.com/api/?name=Harikumar&size=100&background=random",
     content:
-      "Choosing this certified digital marketing and advertising company for Google ranking and SEO performance was the right decision. Our keyword positions improved steadily, and our overall digital presence became stronger. Their expertise, support, and consistency make them a trusted long-term partner — the Best Google 360 Provider in India and the Best Digital Marketing Agency in Kochi.",
+      "Choosing this certified digital marketing and advertising company for Google ranking and SEO performance was the right decision. Our keyword positions improved steadily, and our overall digital presence became stronger. Their expertise, support, and consistency make them a trusted long-term partner — the Best Google 360 Provider in India and the Best Digital Marketing company in Kochi.",
     rating: 5,
   },
 ];

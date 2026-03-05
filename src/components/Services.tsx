@@ -35,7 +35,7 @@
 //     icon: Share2,
 //     title: "Performance Marketing",
 //     description:
-//       "We deliver ROI-focused advertising campaigns on Google, Facebook, and Instagram, making us the best Performance Marketing  service in Kochi  and a leader in best digital marketing agency  in Kochi, driving real leads, calls, and conversions.",
+//       "We deliver ROI-focused advertising campaigns on Google, Facebook, and Instagram, making us the best Performance Marketing  service in Kochi  and a leader in best digital marketing company  in Kochi, driving real leads, calls, and conversions.",
 //     color: "bg-purple-500/10 text-purple-600",
 //     image: performanceMarketingImage,
 //   },
@@ -43,7 +43,7 @@
 //     icon: FileText,
 //     title: "Social Media Marketing",
 //     description:
-//       "We provide creative and consistent social media management, making us the best Social Media Marketing service in Kochi and a leader in best digital marketing agency in Kochi   , building trust, increasing engagement, and converting followers into customers.",
+//       "We provide creative and consistent social media management, making us the best Social Media Marketing service in Kochi and a leader in best digital marketing company in Kochi   , building trust, increasing engagement, and converting followers into customers.",
 //     color: "bg-orange-500/10 text-orange-600",
 //     image: socialMediaMarketingImage,
 //   },
@@ -59,7 +59,7 @@
 //     icon: Smartphone,
 //     title: "Web & App Development",
 //     description:
-//       "We build scalable and user-friendly mobile and web applications as the best digital marketing agency in Kochi, delivering seamless functionality, high performance, and engaging digital experiences.",
+//       "We build scalable and user-friendly mobile and web applications as the best digital marketing company in Kochi, delivering seamless functionality, high performance, and engaging digital experiences.",
 //     color: "bg-cyan-500/10 text-cyan-600",
 //     image: appDevImage,
 //   },
@@ -116,7 +116,7 @@
 //             Everything You Need to Grow
 //           </h2>
 //           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-//            Certifyied delivers smart digital solutions as the Best Google 360 Provider in India and the Best Digital Marketing Agency in Kochi, boosting visibility, attracting the right audience, and turning leads into loyal customers through result-driven strategies.
+//            Certifyied delivers smart digital solutions as the Best Google 360 Provider in India and the Best Digital Marketing company in Kochi, boosting visibility, attracting the right audience, and turning leads into loyal customers through result-driven strategies.
 //           </p>
 //         </motion.div>
 
