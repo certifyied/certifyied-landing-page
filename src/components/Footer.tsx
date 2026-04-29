@@ -84,12 +84,29 @@ const Footer = () => {
                 <span>+91 8189848498, +91 9544596699</span>
               </motion.div>
               <motion.div
-                className="flex items-center gap-3 text-background/70"
+                className="flex items-start gap-3 text-background/70"
                 whileHover={{ x: 5 }}
                 transition={{ duration: 0.2 }}
               >
-                <MapPin className="w-5 h-5 text-primary" />
-                <span>28/275J Kakkanad, Kochi, Kerala - 682021</span>
+                <MapPin className="w-5 h-5 text-primary mt-1" />
+                <span className="leading-relaxed">
+                  28/275J Kakkanad <br />
+                  Kochi, Kerala - 682021
+                </span>
+              </motion.div>
+
+              <motion.div
+                className="flex items-start gap-3 text-background/70"
+                whileHover={{ x: 5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <MapPin className="w-5 h-5 text-primary mt-1" />
+                <span className="leading-relaxed">
+                  Certifyied <br />
+                  2nd Floor, Plot - 8 <br />
+                  Manish Nagar <br />
+                  Nagpur, Maharashtra - 440015
+                </span>
               </motion.div>
             </div>
           </motion.div>

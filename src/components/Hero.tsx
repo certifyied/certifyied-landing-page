@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, Users, Globe } from "lucide-react";
 import { motion } from "framer-motion";
+import peng from "@/assets/logo-googleplex-street-view-trusted (1).png"; // adjust path if needed
 
 const Hero = () => {
   const containerVariants = {
@@ -89,7 +90,15 @@ const Hero = () => {
               Trusted by 5000+ businesses worldwide
             </span>
           </motion.div>
-
+<motion.img
+  src={peng}
+  alt="Google 360 digital marketing services illustration"
+  className="mx-auto my-8 w-48 sm:w-64 md:w-80 lg:w-96 xl:w-[420px] object-contain"
+  variants={itemVariants}
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+/>
           {/* Main Headline */}
           <motion.h1
             className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-foreground leading-tight mb-6"
@@ -156,32 +165,37 @@ const Hero = () => {
 
           {/* Stats */}
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-3xl mx-auto"
-            variants={containerVariants}
-          >
-            {[
-              { icon: TrendingUp, value: "5000+", label: "Happy Clients" },
-              { icon: Users, value: "1000+", label: "Creators" },
-              { icon: Users, value: "2.5M+", label: "Client Retention" },
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                className="bg-card/50 backdrop-blur-sm rounded-2xl p-4 border border-border/50"
-                variants={itemVariants}
-                whileHover={{
-                  scale: 1.05,
-                  borderColor: "hsl(var(--primary) / 0.3)",
-                  transition: { duration: 0.2 },
-                }}
-              >
-                <stat.icon className="w-6 h-6 text-primary mx-auto mb-2" />
-                <div className="text-2xl md:text-3xl font-bold text-foreground">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
+  className="flex justify-center items-center gap-8 flex-wrap max-w-4xl mx-auto text-center"
+  variants={containerVariants}
+>
+  {[
+    { icon: TrendingUp, value: "5000+", label: "Happy Clients" },
+    { icon: Users, value: "100+", label: "Creators" },
+    { icon: Users, value: "2.5M+", label: "Customer Revenue" },
+    { icon: Globe, value: "10+", label: "Country Served" },
+  ].map((stat, index) => (
+    <motion.div
+      key={index}
+      className="flex flex-col items-center justify-center min-w-[140px] bg-card/50 backdrop-blur-sm rounded-2xl p-4 border border-border/50"
+      variants={itemVariants}
+      whileHover={{
+        scale: 1.05,
+        borderColor: "hsl(var(--primary) / 0.3)",
+        transition: { duration: 0.2 },
+      }}
+    >
+      <stat.icon className="w-6 h-6 text-primary mb-2" />
+      
+      <div className="text-2xl md:text-3xl font-bold text-foreground">
+        {stat.value}
+      </div>
+
+      <div className="text-sm text-muted-foreground">
+        {stat.label}
+      </div>
+    </motion.div>
+  ))}
+</motion.div>
         </motion.div>
       </div>
 

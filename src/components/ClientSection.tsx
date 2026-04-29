@@ -53,13 +53,13 @@ const ClientSection = () => {
           viewport={{ once: true, margin: "-50px" }}
         >
           <motion.div
-            className="bg-card rounded-2xl overflow-hidden border border-border w-full"
+            className=" overflow-hidden w-full"
             variants={itemVariants}
             whileHover={{
               y: -8,
               borderColor: "hsl(var(--primary) / 0.3)",
-              boxShadow:
-                "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              // boxShadow:
+              //   "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
               transition: { duration: 0.3 },
             }}
           >

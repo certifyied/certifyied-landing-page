@@ -187,20 +187,20 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-import google360Image from "@/assets/google_360.jpg";
-import digitalMarketingImage from "@/assets/digital_marketing.jpg";
-import performanceMarketingImage from "@/assets/perfomance_marketing.jpg";
-import socialMediaMarketingImage from "@/assets/social_media_marketing.jpg";
-import webDevImage from "@/assets/web_dev.jpg";
-import appDevImage from "@/assets/app_dev.jpg";
+import google360Image from "@/assets/eeb406878878b705ca453f9dd123647c.jpg";
+import digitalMarketingImage from "@/assets/f99511c85b628e69ee6f643c07246667.jpg";
+import performanceMarketingImage from "@/assets/9469ce4d36bd017edc205e144d9e6b14.jpg";
+import socialMediaMarketingImage from "@/assets/5e0f78c64456fb63f880a66a732942a1.jpg";
+import webDevImage from "@/assets/ddfa24de52f548917098bac2808a0acf.jpg";
+import appDevImage from "@/assets/a29a6f71a0438589226d45f62172e288.jpg";
 
 const services = [
   {
-    icon: Search,
-    title: "360° Google Services",
+    icon: Smartphone,
+    title: "Web Development",
     description:
-      "Rank higher on Google, appear on Maps, and get more calls with optimized profiles, local SEO, and high-performing ads.",
-    image: google360Image,
+      "Scalable, high-performance web and mobile applications with seamless UX.",
+    image: appDevImage,
   },
   {
     icon: BarChart3,
@@ -208,6 +208,20 @@ const services = [
     description:
       "Customized digital strategies to build brand awareness, generate leads, and deliver measurable growth.",
     image: digitalMarketingImage,
+  },
+  {
+    icon: Code,
+    title: "SEO Optimization",
+    description:
+      "Expert local SEO and on-page strategies to rank higher and boost organic traffic.",
+    image: webDevImage,
+  },
+  {
+    icon: Search,
+    title: "360° Google Services",
+    description:
+      "Rank higher on Google, appear on Maps, and get more calls with optimized profiles, local SEO, and high-performing ads.",
+    image: google360Image,
   },
   {
     icon: Share2,
@@ -222,20 +236,6 @@ const services = [
     description:
       "Creative social media strategies that build trust, increase engagement, and convert followers.",
     image: socialMediaMarketingImage,
-  },
-  {
-    icon: Code,
-    title: "SEO Optimization",
-    description:
-      "Expert local SEO and on-page strategies to rank higher and boost organic traffic.",
-    image: webDevImage,
-  },
-  {
-    icon: Smartphone,
-    title: "Web & App Development",
-    description:
-      "Scalable, high-performance web and mobile applications with seamless UX.",
-    image: appDevImage,
   },
 ];
 
