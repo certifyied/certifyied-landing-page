@@ -149,7 +149,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import certifyiedLogo from "@/assets/certifyied_logo.png";
+// import certifyiedLogo from "@/assets/certifyied_logo.png";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -213,10 +213,10 @@ const Navbar = () => {
           whileTap={{ scale: 0.95 }}
         >
           <img
-            src={certifyiedLogo}
-            alt="Certifyied Logo"
-            className="h-7 sm:h-8 md:h-9 w-auto object-contain"
-          />
+  src="/certifyied_logo.png"
+  alt="Certifyied Logo"
+  className="h-7 sm:h-8 md:h-9 w-auto object-contain"
+/>
         </motion.a>
 
         {/* Desktop Navigation */}
