@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import BlogLogin from "./pages/BlogLogin";
-
+import BlogPost from "./pages/BlogPost";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +17,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
- <Route path="/blogin" element={<BlogLogin />} />
+          <Route path="/blogin" element={<BlogLogin />} />
+          <Route path="/blog" element={<BlogPost />} />
           <Route path="/" element={<Index />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
