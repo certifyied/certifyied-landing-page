@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Embed Test Page</title>
+</head>
+<body style="background: #f8fafc; padding: 40px;">
+
+  <h2>1. Test Grid Container (List Mode)</h2>
+  <div id="certifyied-blog-container" data-project-id="4024d9ee-af39-411b-a70f-c388fe32dd47" data-limit="3"></div>
+
+  <hr style="margin: 40px 0; border-color: #e2e8f0;">
+
+  <h2>2. Test Post Container (Single Post Mode)</h2>
+  <!-- We mock a post container with a valid blog ID (6) -->
+  <div id="certifyied-blog-post" data-project-id="4024d9ee-af39-411b-a70f-c388fe32dd47"></div>
+
+  <!-- Load fresh CDN embed script -->
+  <script src="https://bloggfeature.certifyied.workers.dev/adminApiBlog/api/embed?v=test"></script>
+
+  <script>
+    // Mock the URL parameters by modifying search property on the fly or setting a mock parameter
+    // The script queries window.location.search, which is empty here.
+    // So for the second container, it will display the error message. Let's verify that.
+  </script>
+</body>
+</html>
