@@ -73,7 +73,7 @@ const Footer = () => {
                 transition={{ duration: 0.2 }}
               >
                 <Mail className="w-5 h-5 text-primary" />
-                <span>info@certifyied.com</span>
+                <span>sales@certifyied.com</span>
               </motion.div>
               <motion.div
                 className="flex items-center gap-3 text-background/70"
