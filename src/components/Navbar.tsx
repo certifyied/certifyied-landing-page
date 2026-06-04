@@ -165,8 +165,28 @@ const Navbar = () => {
 
   // ✅ Smooth scroll with offset (fix hidden section issue)
   const handleScrollToSection = (e, href) => {
+    const isHomePage = window.location.pathname === "/";
+    let targetId = href;
+
+    // If on home page, convert "/#section" to "#section" for smooth scrolling
+    if (isHomePage && targetId.startsWith("/#")) {
+      targetId = targetId.replace("/", "");
+    }
+
+    if (!targetId.startsWith("#")) {
+      setIsMobileMenuOpen(false);
+      return; // Let the browser handle standard links
+    }
+
     e.preventDefault();
-    const targetId = href.replace("#", "");
+    targetId = targetId.replace("#", "");
+    
+    if (targetId === "") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setIsMobileMenuOpen(false);
+        return;
+    }
+
     const element = document.getElementById(targetId);
 
     if (element) {
@@ -184,11 +204,11 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Services", href: "#services" },
-    { name: "Solutions", href: "#solutions" },
-    { name: "Testimonials", href: "#testimonials" },
-    { name: "Our Products", href: "#pricing" },
-    { name: "Blog", href: "#blog" }, // ✅ Blog added
+    { name: "Services", href: "/#services" },
+    { name: "Solutions", href: "/#solutions" },
+    { name: "Testimonials", href: "/#testimonials" },
+    { name: "Our Products", href: "/#pricing" },
+    { name: "Blog", href: "/blog" }, // ✅ Blog added
   ];
 
   return (
@@ -206,8 +226,12 @@ const Navbar = () => {
         
         {/* Logo */}
         <motion.a
-          href="#"
-          onClick={(e) => handleScrollToSection(e, "#")}
+          href="/"
+          onClick={(e) => {
+            if (window.location.pathname === '/') {
+                handleScrollToSection(e, "#");
+            }
+          }}
           className="flex items-center gap-2"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
