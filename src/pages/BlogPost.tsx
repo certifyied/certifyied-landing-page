@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function BlogPost() {
     const [searchParams] = useSearchParams();
@@ -17,27 +19,33 @@ export default function BlogPost() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-muted/40 pt-20 pb-20">
-            <div className="container mx-auto px-4">
-                {/* Back button */}
-                <div className="mb-8">
-                    {isSinglePost ? (
-                        <a href="/blog" className="text-primary hover:underline font-medium">
-                            ← Back to Blogs
-                        </a>
-                    ) : (
-                        <a href="/" className="text-primary hover:underline font-medium">
-                            ← Back to Home
-                        </a>
-                    )}
+        <div className="min-h-screen bg-background flex flex-col">
+            <Navbar />
+            
+            <div className="flex-grow bg-muted/40 pt-28 pb-20">
+                <div className="container mx-auto px-4">
+                    {/* Back button */}
+                    <div className="mb-8">
+                        {isSinglePost ? (
+                            <a href="/blog" className="text-primary hover:underline font-medium">
+                                ← Back to Blogs
+                            </a>
+                        ) : (
+                            <a href="/" className="text-primary hover:underline font-medium">
+                                ← Back to Home
+                            </a>
+                        )}
+                    </div>
+                    
+                    {/* Container where the single blog post or blog list will load */}
+                    <div 
+                        id="certifyied-blog-post" 
+                        data-project-id="895ecc14-ae41-4fe8-9f2d-51072a3c44c9"
+                    ></div>
                 </div>
-                
-                {/* Container where the single blog post or blog list will load */}
-                <div 
-                    id="certifyied-blog-post" 
-                    data-project-id="895ecc14-ae41-4fe8-9f2d-51072a3c44c9"
-                ></div>
             </div>
+            
+            <Footer />
         </div>
     );
 }
