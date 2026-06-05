@@ -50,12 +50,12 @@ export default function BlogPost() {
                     {isSinglePost ? (
                         <div 
                             id="certifyied-blog-post" 
-                            data-project-id="670e2135-e070-4b9c-b284-5778e361077e"
+                            data-project-id="895ecc14-ae41-4fe8-9f2d-51072a3c44c9"
                         ></div>
                     ) : (
                         <div 
                             id="certifyied-blog-container" 
-                            data-project-id="670e2135-e070-4b9c-b284-5778e361077e"
+                            data-project-id="895ecc14-ae41-4fe8-9f2d-51072a3c44c9"
                             data-limit="9"
                             data-redirect-url="/blog"
                         ></div>
