@@ -19,6 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/blogin" element={<BlogLogin />} />
           <Route path="/blog" element={<BlogPost />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/" element={<Index />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
