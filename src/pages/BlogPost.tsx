@@ -5,18 +5,27 @@ import Footer from "@/components/Footer";
 
 export default function BlogPost() {
     const [searchParams] = useSearchParams();
-    const isSinglePost = searchParams.has("id") || searchParams.has("slug");
+    const isSinglePost = searchParams.has("id");
 
     useEffect(() => {
+        // 1. Remove old script if exists to prevent duplicates on route changes
         const scriptId = 'certifyied-blog-embed-script';
-        if (!document.getElementById(scriptId)) {
-            const script = document.createElement("script");
-            script.id = scriptId;
-            script.src = "https://bloggfeature.certifyied.workers.dev/adminApiBlog/api/embed";
-            script.async = true;
-            document.body.appendChild(script);
-        }
-    }, []);
+        const oldScript = document.getElementById(scriptId);
+        if (oldScript) oldScript.remove();
+        
+        // 2. Inject the CDN script
+        const script = document.createElement("script");
+        script.id = scriptId;
+        // Using the custom color param as well
+        script.src = "https://bloggfeature.certifyied.workers.dev/adminApiBlog/api/embed?color=10b981";
+        script.async = true;
+        document.body.appendChild(script);
+
+        return () => {
+            const existing = document.getElementById(scriptId);
+            if (existing) existing.remove();
+        };
+    }, [isSinglePost]); // Re-run when switching between single post and grid view
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -38,10 +47,19 @@ export default function BlogPost() {
                     </div>
                     
                     {/* Container where the single blog post or blog list will load */}
-                    <div 
-                        id="certifyied-blog-post" 
-                        data-project-id="895ecc14-ae41-4fe8-9f2d-51072a3c44c9"
-                    ></div>
+                    {isSinglePost ? (
+                        <div 
+                            id="certifyied-blog-post" 
+                            data-project-id="670e2135-e070-4b9c-b284-5778e361077e"
+                        ></div>
+                    ) : (
+                        <div 
+                            id="certifyied-blog-container" 
+                            data-project-id="670e2135-e070-4b9c-b284-5778e361077e"
+                            data-limit="9"
+                            data-redirect-url="/blog"
+                        ></div>
+                    )}
                 </div>
             </div>
             
