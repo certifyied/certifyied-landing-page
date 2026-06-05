@@ -148,7 +148,7 @@ const Footer = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <p className="text-background/50 text-sm">
-            © 2024 Certifyied. All rights reserved. Designed and Developed by Fawas A Shemeer
+            © 2024 Certifyied. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             {socialLinks.map((social, index) => (
