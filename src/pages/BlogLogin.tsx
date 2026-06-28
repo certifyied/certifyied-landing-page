@@ -1,10 +1,7 @@
 import React from "react";
 
 export default function BlogLogin() {
-  const isDev = import.meta.env.DEV;
-  const apiUrl = isDev 
-    ? "http://localhost:8787/adminApiBlog" 
-    : (import.meta.env.VITE_BLOG_API_URL || "https://bloggfeature.certifyied.workers.dev/adminApiBlog");
+  const apiUrl = import.meta.env.VITE_BLOG_API_URL || "https://bloggfeature.certifyied.workers.dev/adminApiBlog";
 
   return (
     <div className="w-full h-screen bg-[#0b0f19] overflow-hidden flex flex-col">

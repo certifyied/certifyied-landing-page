@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import BlogLogin from "./pages/BlogLogin";
 import BlogPost from "./pages/BlogPost";
+import CertLogin from "./pages/CertLogin";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/blogin" element={<BlogLogin />} />
+          <Route path="/certlogin" element={<CertLogin />} />
           <Route path="/blog" element={<BlogPost />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/" element={<Index />} />
