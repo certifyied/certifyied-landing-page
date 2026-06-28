@@ -7,14 +7,22 @@ export default function CertLogin() {
   const blogUrl = import.meta.env.VITE_BLOG_API_URL || "https://bloggfeature.certifyied.workers.dev/adminApiBlog";
 
   // Reviews Portal URL resolver (reviewdash)
-  const reviewsUrl = import.meta.env.VITE_REVIEWS_URL || "/reviewdash/";
+  const reviewsUrl = import.meta.env.VITE_REVIEWS_URL || (isDev ? "http://localhost:5180/" : "/reviewdash/");
 
   const [activeTab, setActiveTab] = useState<"blog" | "reviews">("blog");
 
   // Construct iframe URLs with parent origin parameter to avoid cross-origin image resolution issues
   const parentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-  const resolvedBlogUrl = `${blogUrl}${blogUrl.includes('?') ? '&' : '?'}parent_origin=${encodeURIComponent(parentOrigin)}`;
-  const resolvedReviewsUrl = `${reviewsUrl}${reviewsUrl.includes('?') ? '&' : '?'}parent_origin=${encodeURIComponent(parentOrigin)}`;
+  const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const magicToken = params.get('magic_token');
+
+  let resolvedBlogUrl = `${blogUrl}${blogUrl.includes('?') ? '&' : '?'}parent_origin=${encodeURIComponent(parentOrigin)}`;
+  let resolvedReviewsUrl = `${reviewsUrl}${reviewsUrl.includes('?') ? '&' : '?'}parent_origin=${encodeURIComponent(parentOrigin)}`;
+
+  if (magicToken) {
+    resolvedBlogUrl += `&magic_token=${encodeURIComponent(magicToken)}`;
+    resolvedReviewsUrl += `&magic_token=${encodeURIComponent(magicToken)}`;
+  }
 
   return (
     <div className="w-full h-screen bg-[#0b0f19] overflow-hidden flex flex-col font-sans text-white">
