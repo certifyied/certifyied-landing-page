@@ -8,6 +8,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    configureServer: (server) => {
+      server.middlewares.use((req, res, next) => {
+        if (req.url && req.url.startsWith('/reviewdash/') && !req.url.includes('.')) {
+          req.url = '/reviewdash/index.html';
+        }
+        next();
+      });
+    }
   },
   plugins: [
     react(),
