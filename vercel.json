@@ -1,12 +1,11 @@
 {
-  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/reviewdash/:path*",
+      "source": "/reviewdash/(.*)",
       "destination": "/reviewdash/index.html"
     },
     {
-      "source": "/:path((?!reviewdash)[^.]*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
