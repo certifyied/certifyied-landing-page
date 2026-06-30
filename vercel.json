@@ -6,7 +6,7 @@
       "destination": "/reviewdash/index.html"
     },
     {
-      "source": "/:path*",
+      "source": "/:path((?!reviewdash)[^.]*)",
       "destination": "/index.html"
     }
   ]
