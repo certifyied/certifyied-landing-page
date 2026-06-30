@@ -1,8 +1,13 @@
 {
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/reviewdash/(.*)",
       "destination": "/reviewdash/index.html"
+    },
+    {
+      "source": "/((?!reviewdash|.*\\.).*)",
+      "destination": "/index.html"
     }
   ]
 }
