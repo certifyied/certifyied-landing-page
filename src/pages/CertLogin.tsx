@@ -7,7 +7,7 @@ export default function CertLogin() {
   const blogUrl = import.meta.env.VITE_BLOG_API_URL || "https://bloggfeature.certifyied.workers.dev/adminApiBlog";
 
   // Reviews Portal URL resolver (reviewdash)
-  const reviewsUrl = import.meta.env.VITE_REVIEWS_URL || "/reviewdash/index.html";
+  const reviewsUrl = import.meta.env.VITE_REVIEWS_URL || "/reviewdash/certlogin";
 
   const [activeTab, setActiveTab] = useState<"blog" | "reviews">("blog");
 
