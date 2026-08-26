@@ -2,17 +2,23 @@ import { useState } from "react";
 
 export default function CertLogin() {
   const isDev = import.meta.env.DEV;
-  
+
   // Blog Admin URL resolver
   const blogUrl = import.meta.env.VITE_BLOG_API_URL || "https://bloggfeature.certifyied.workers.dev/adminApiBlog";
 
-  // Reviews Portal URL resolver (reviewdash)
-  const reviewsUrl = import.meta.env.VITE_REVIEWS_URL || "/reviewdash/certlogin";
+  // Reviews Portal URL resolver (reviewdash) - self-healing dynamic fallback
+  const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+  const rawReviewsUrl = import.meta.env.VITE_REVIEWS_URL || '';
+  const reviewsUrl = (rawReviewsUrl && !rawReviewsUrl.includes('localhost:8787') && rawReviewsUrl !== 'http://localhost:8787/')
+    ? rawReviewsUrl
+    : (currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1'))
+      ? 'http://localhost:5180/reviewdash/certlogin'
+      : `${currentOrigin}/reviewdash/certlogin`;
 
-  const [activeTab, setActiveTab] = useState<"blog" | "reviews">("blog");
+  const [activeTab, setActiveTab] = useState<"blog" | "reviews">("reviews");
 
   // Construct iframe URLs with parent origin parameter to avoid cross-origin image resolution issues
-  const parentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+  const parentOrigin = currentOrigin;
   const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   const magicToken = params.get('magic_token');
 
@@ -33,39 +39,37 @@ export default function CertLogin() {
             Certifyied <span className="text-[#467222]">Portals</span>
           </span>
         </div>
-        
+
         {/* Tab Buttons */}
         <div className="flex bg-[#0b0f19] p-1 rounded-lg border border-[#1f2937]">
           <button
             onClick={() => setActiveTab("blog")}
-            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${
-              activeTab === "blog"
-                ? "bg-[#467222] text-white shadow-lg"
-                : "text-gray-400 hover:text-white"
-            }`}
+            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${activeTab === "blog"
+              ? "bg-[#467222] text-white shadow-lg"
+              : "text-gray-400 hover:text-white"
+              }`}
           >
             ✍️ Blog Admin
           </button>
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${
-              activeTab === "reviews"
-                ? "bg-[#467222] text-white shadow-lg"
-                : "text-gray-400 hover:text-white"
-            }`}
+            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${activeTab === "reviews"
+              ? "bg-[#467222] text-white shadow-lg"
+              : "text-gray-400 hover:text-white"
+              }`}
           >
             ⭐ Customer Reviews
           </button>
         </div>
 
-        <a 
-          href="/" 
+        <a
+          href="/"
           className="text-sm font-medium text-gray-300 hover:text-white transition-colors duration-200"
         >
           ← Back to Website
         </a>
       </header>
-      
+
       {/* Portals Iframe Container */}
       <div className="flex-1 w-full h-full relative bg-[#0b0f19]">
         {activeTab === "blog" ? (

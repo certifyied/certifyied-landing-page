@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://bloggfeature.certifyied.workers.dev/adminApiBlog/api/sitemap.xml?projectId=e015b984-9937-4df6-8d16-49ec9237a122"
+    },
+    {
       "source": "/reviewdash/(.*)",
       "destination": "/reviewdash/index.html"
     },

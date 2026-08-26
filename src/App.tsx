@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import BlogLogin from "./pages/BlogLogin";
 import BlogPost from "./pages/BlogPost";
 import CertLogin from "./pages/CertLogin";
+import VenerableThomasPaulRamban from "./pages/VenerableThomasPaulRamban";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/certlogin" element={<CertLogin />} />
           <Route path="/blog" element={<BlogPost />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/Venerable_Thomas_Paul_Ramban" element={<VenerableThomasPaulRamban />} />
           <Route path="/" element={<Index />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
