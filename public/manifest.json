@@ -2,24 +2,38 @@
   "name": "Certifyied Autodialer",
   "short_name": "Autodialer",
   "description": "High-velocity outbound calling and sales campaign manager for Certifyied team.",
+  "id": "/autodailer",
   "start_url": "/autodailer",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#000000",
+  "background_color": "#f5f5f7",
   "theme_color": "#0071e3",
+  "categories": ["business", "productivity", "utilities"],
   "icons": [
     {
       "src": "/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/certifyied_logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/certifyied_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

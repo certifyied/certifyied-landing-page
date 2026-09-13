@@ -32,7 +32,9 @@ import {
   Activity,
   Zap,
   Check,
-  UserPlus
+  UserPlus,
+  Share2,
+  PlusSquare
 } from 'lucide-react';
 
 interface Lead {
@@ -150,6 +152,15 @@ export default function Autodialer() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isAppInstalled, setIsAppInstalled] = useState(false);
   const [showInstallSheet, setShowInstallSheet] = useState(false);
+  const [installBannerDismissed, setInstallBannerDismissed] = useState<boolean>(() => {
+    try {
+      return typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('autodialer_install_dismissed') === 'true' : false;
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const isIOS = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 
   // Sales Team Directory State (Admin)
   const [salesTeamList, setSalesTeamList] = useState<SalesMember[]>([]);
@@ -244,11 +255,6 @@ export default function Autodialer() {
     const chromeDetected = /Chrome/.test(userAgent) && !/Edg/.test(userAgent) && !/OPR/.test(userAgent);
     setIsChrome(chromeDetected);
 
-    let t: any;
-    if (!chromeDetected) {
-      t = setTimeout(() => setShowChromeAlert(true), 1500);
-    }
-
     try {
       if ((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator as any)?.standalone) {
         setIsAppInstalled(true);
@@ -260,10 +266,18 @@ export default function Autodialer() {
       setDeferredPrompt(e);
     };
 
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true);
+      setDeferredPrompt(null);
+      showToast('Autodialer App installed to Home Screen!');
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
     return () => {
-      if (t) clearTimeout(t);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -954,22 +968,166 @@ export default function Autodialer() {
   };
 
   const handleInstallClick = async () => {
-    if (!isChrome) {
-      setShowChromeAlert(true);
-      return;
-    }
-
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setIsAppInstalled(true);
-        showToast('App installed successfully!');
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setIsAppInstalled(true);
+          showToast('App installed successfully to Home Screen!');
+        }
+        setDeferredPrompt(null);
+      } catch (e) {
+        setShowInstallSheet(true);
       }
-      setDeferredPrompt(null);
     } else {
       setShowInstallSheet(true);
     }
+  };
+
+  const renderInstallModal = () => {
+    if (!showInstallSheet) return null;
+    return (
+      <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="apple-glass-white max-w-md w-full rounded-3xl p-6 border border-black/10 shadow-2xl bg-white/95 text-[#1d1d1f] animate-in slide-in-from-bottom-5 duration-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#0071e3]/10 border border-[#0071e3]/20 flex items-center justify-center text-[#0071e3]">
+              {isIOS ? <Smartphone className="w-6 h-6" /> : <Download className="w-6 h-6" />}
+            </div>
+            <button
+              onClick={() => setShowInstallSheet(false)}
+              className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <h3 className="text-lg font-bold text-[#1d1d1f] tracking-tight">
+            {isIOS ? 'Add to iPhone Home Screen' : 'Install Autodialer App'}
+          </h3>
+          <p className="text-xs text-[#86868b] mt-1.5 leading-relaxed">
+            {isIOS
+              ? 'Install directly on your iPhone home screen for instant single-tap launch, standalone fullscreen workflow, and quick dialing:'
+              : 'Install Certifyied Autodialer on your device for single-click access and fullscreen workflow:'}
+          </p>
+
+          {isIOS ? (
+            <div className="mt-4 space-y-2.5 text-xs text-zinc-700">
+              <div className="p-3.5 rounded-2xl bg-zinc-50 border border-black/5 flex items-start gap-3">
+                <div className="w-7 h-7 rounded-xl bg-[#0071e3]/10 text-[#0071e3] flex items-center justify-center shrink-0 mt-0.5">
+                  <Share2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <strong className="block text-[#1d1d1f] font-semibold mb-0.5">1. Tap the Share Button</strong>
+                  <span className="text-zinc-500">In Safari, tap the <strong>Share icon</strong> (box with arrow pointing up) at the bottom of your screen.</span>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-zinc-50 border border-black/5 flex items-start gap-3">
+                <div className="w-7 h-7 rounded-xl bg-[#0071e3]/10 text-[#0071e3] flex items-center justify-center shrink-0 mt-0.5">
+                  <PlusSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <strong className="block text-[#1d1d1f] font-semibold mb-0.5">2. Tap "Add to Home Screen"</strong>
+                  <span className="text-zinc-500">Scroll down in the menu and tap <strong>Add to Home Screen</strong>.</span>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-zinc-50 border border-black/5 flex items-start gap-3">
+                <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <strong className="block text-[#1d1d1f] font-semibold mb-0.5">3. Tap "Add"</strong>
+                  <span className="text-zinc-500">Tap <strong>Add</strong> in the top-right corner. The Autodialer app icon will appear on your iPhone!</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4 space-y-2.5 text-xs text-zinc-700">
+              {deferredPrompt ? (
+                <button
+                  onClick={async () => {
+                    try {
+                      deferredPrompt.prompt();
+                      const { outcome } = await deferredPrompt.userChoice;
+                      if (outcome === 'accepted') {
+                        setIsAppInstalled(true);
+                        showToast('Autodialer App installed successfully!');
+                        setShowInstallSheet(false);
+                      }
+                      setDeferredPrompt(null);
+                    } catch (e) {}
+                  }}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-[#0071e3] hover:bg-[#0077ed] active:scale-98 text-white font-medium text-sm transition-all shadow-md shadow-[#0071e3]/25 flex items-center justify-center gap-2 mb-3"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Install App Directly</span>
+                </button>
+              ) : null}
+
+              <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 flex items-center gap-3">
+                <span className="w-5 h-5 rounded-full bg-zinc-200 text-zinc-800 flex items-center justify-center font-bold text-[10px]">1</span>
+                <span>In Google Chrome, click the <strong>Install icon</strong> in the address bar or the 3-dot menu.</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 flex items-center gap-3">
+                <span className="w-5 h-5 rounded-full bg-zinc-200 text-zinc-800 flex items-center justify-center font-bold text-[10px]">2</span>
+                <span>On Android: tap the menu → <strong>Install App</strong> or <strong>Add to Home Screen</strong>.</span>
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowInstallSheet(false)}
+            className="mt-5 w-full py-3 px-4 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-[#1d1d1f] font-medium text-xs transition-all"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderInstallBanner = () => {
+    if (isAppInstalled || installBannerDismissed) return null;
+    return (
+      <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 animate-in slide-in-from-bottom-5 duration-300">
+        <div className="apple-glass-white bg-white/95 rounded-3xl p-4 border border-black/10 shadow-2xl flex items-center justify-between gap-3 text-[#1d1d1f]">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#0071e3] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#0071e3]/20">
+              <PhoneCall className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-[#1d1d1f] truncate">Install Autodialer App</h4>
+              <p className="text-[11px] text-[#86868b] truncate">
+                {isIOS ? 'Add to iPhone Home Screen for 1-tap dialer' : 'Install for fullscreen calling workstation'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={handleInstallClick}
+              className="py-2 px-3.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] active:scale-95 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
+            >
+              {isIOS ? <Share2 className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+              <span>{isIOS ? 'Add to Home' : 'Install'}</span>
+            </button>
+            <button
+              onClick={() => {
+                setInstallBannerDismissed(true);
+                try {
+                  sessionStorage.setItem('autodialer_install_dismissed', 'true');
+                } catch (e) {}
+              }}
+              className="w-8 h-8 rounded-full hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-700 transition-colors"
+              aria-label="Dismiss banner"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // --- RENDER LOADING SCREEN ---
@@ -1089,6 +1247,8 @@ export default function Autodialer() {
             </div>
           )}
         </div>
+        {renderInstallBanner()}
+        {renderInstallModal()}
       </div>
     );
   }
@@ -1116,95 +1276,9 @@ export default function Autodialer() {
         </div>
       )}
 
-      {/* --- NON-CHROME BROWSER MODAL --- */}
-      {showChromeAlert && (
-        <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4">
-          <div className="apple-glass-white max-w-md w-full rounded-3xl p-6 border border-black/10 shadow-2xl bg-white/95 text-[#1d1d1f]">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
-                <AlertCircle className="w-6 h-6" />
-              </div>
-              <button
-                onClick={() => setShowChromeAlert(false)}
-                className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <h3 className="text-lg font-semibold text-[#1d1d1f] tracking-tight">Google Chrome Recommended</h3>
-            <p className="text-sm text-[#86868b] mt-2 leading-relaxed">
-              Autodialer uses seamless telephone protocol triggers (<code className="text-[#0071e3]">tel:</code>) and automatic call duration return listeners that run best on <strong className="text-[#1d1d1f]">Google Chrome</strong>.
-            </p>
-
-            <div className="mt-4 p-3.5 rounded-2xl bg-zinc-50 border border-black/5 text-xs text-zinc-600 flex items-start gap-2.5">
-              <Smartphone className="w-4 h-4 text-[#0071e3] shrink-0 mt-0.5" />
-              <span>For the best calling experience, please open this link in Google Chrome on your device.</span>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-2">
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  showToast('URL copied to clipboard! Open in Chrome.');
-                  setShowChromeAlert(false);
-                }}
-                className="w-full py-3 px-4 rounded-2xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-sm transition-all shadow-md shadow-[#0071e3]/20"
-              >
-                Copy Link to Open in Chrome
-              </button>
-              <button
-                onClick={() => setShowChromeAlert(false)}
-                className="w-full py-2.5 px-4 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-medium text-sm transition-all"
-              >
-                Continue in Current Browser
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* --- PWA APP INSTALL GUIDANCE SHEET --- */}
-      {showInstallSheet && (
-        <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4">
-          <div className="apple-glass-white max-w-md w-full rounded-3xl p-6 border border-black/10 shadow-2xl bg-white/95 text-[#1d1d1f]">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#0071e3]/10 border border-[#0071e3]/20 flex items-center justify-center text-[#0071e3]">
-                <Download className="w-6 h-6" />
-              </div>
-              <button
-                onClick={() => setShowInstallSheet(false)}
-                className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <h3 className="text-lg font-semibold text-[#1d1d1f] tracking-tight">Install Autodialer App</h3>
-            <p className="text-sm text-[#86868b] mt-2 leading-relaxed">
-              Install Certifyied Autodialer on your desktop or mobile home screen for single-click access and fullscreen workflow:
-            </p>
-
-            <div className="mt-4 space-y-2 text-xs text-zinc-700">
-              <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 flex items-center gap-3">
-                <span className="w-5 h-5 rounded-full bg-zinc-200 text-zinc-800 flex items-center justify-center font-bold text-[10px]">1</span>
-                <span>In Google Chrome, click the <strong>Install icon</strong> in the address bar.</span>
-              </div>
-              <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 flex items-center gap-3">
-                <span className="w-5 h-5 rounded-full bg-zinc-200 text-zinc-800 flex items-center justify-center font-bold text-[10px]">2</span>
-                <span>On Mobile: tap <strong>Share</strong> → <strong>Add to Home Screen</strong>.</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowInstallSheet(false)}
-              className="mt-6 w-full py-3 px-4 rounded-2xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-sm transition-all shadow-md shadow-[#0071e3]/20"
-            >
-              Got it
-            </button>
-          </div>
-        </div>
-      )}
+      {/* PWA Install Banner & Device Guide Modal */}
+      {renderInstallBanner()}
+      {renderInstallModal()}
 
       {/* --- APPLE TOP NAVIGATION BAR --- */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-black/10 px-6 py-3.5 shadow-sm">
@@ -1336,13 +1410,16 @@ export default function Autodialer() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleInstallClick}
-              className="px-3.5 py-1.5 rounded-2xl bg-white hover:bg-zinc-50 border border-black/10 text-xs text-zinc-700 font-medium flex items-center gap-1.5 transition-all shadow-sm"
-            >
-              <Download className="w-3.5 h-3.5 text-[#0071e3]" />
-              <span className="hidden sm:inline">Install App</span>
-            </button>
+            {!isAppInstalled && (
+              <button
+                onClick={handleInstallClick}
+                className="px-3.5 py-1.5 rounded-2xl bg-white hover:bg-zinc-50 border border-black/10 text-xs text-zinc-700 font-medium flex items-center gap-1.5 transition-all shadow-sm"
+                title={isIOS ? 'Add to iPhone Home Screen' : 'Install PWA App'}
+              >
+                {isIOS ? <Share2 className="w-3.5 h-3.5 text-[#0071e3]" /> : <Download className="w-3.5 h-3.5 text-[#0071e3]" />}
+                <span className="hidden sm:inline">{isIOS ? 'Add to Home' : 'Install App'}</span>
+              </button>
+            )}
 
             <div className="h-6 w-px bg-black/10" />
 
