@@ -123,7 +123,11 @@ type AutodialerTab = 'queue' | 'upload' | 'qualified' | 'analytics' | 'admin_ove
 export default function Autodialer() {
   // Configuration
   const rawApiUrl = import.meta.env.VITE_BLOG_API_URL || 'https://bloggfeature.certifyied.workers.dev';
-  const apiBase = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+  let resolvedBase = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+  if (resolvedBase.endsWith('/adminApiBlog')) {
+    resolvedBase = resolvedBase.slice(0, -'/adminApiBlog'.length);
+  }
+  const apiBase = resolvedBase;
   const endpointBase = `${apiBase}/adminApiBlog/api/autodialer`;
 
   // Auth State
@@ -240,14 +244,16 @@ export default function Autodialer() {
     const chromeDetected = /Chrome/.test(userAgent) && !/Edg/.test(userAgent) && !/OPR/.test(userAgent);
     setIsChrome(chromeDetected);
 
+    let t: any;
     if (!chromeDetected) {
-      const t = setTimeout(() => setShowChromeAlert(true), 1200);
-      return () => clearTimeout(t);
+      t = setTimeout(() => setShowChromeAlert(true), 1500);
     }
 
-    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
-      setIsAppInstalled(true);
-    }
+    try {
+      if ((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator as any)?.standalone) {
+        setIsAppInstalled(true);
+      }
+    } catch (e) {}
 
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
@@ -255,7 +261,10 @@ export default function Autodialer() {
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => {
+      if (t) clearTimeout(t);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
 
   // Check URL for magic_token on mount
@@ -317,7 +326,7 @@ export default function Autodialer() {
     const normalizedEmail = loginEmail.trim().toLowerCase();
 
     try {
-      const redirectUrl = `${window.location.origin}/autodailer`;
+      const redirectUrl = `${window.location.origin}${window.location.pathname}`;
       const res = await fetch(`${apiBase}/adminApiBlog/auth/send-magic-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -500,8 +509,15 @@ export default function Autodialer() {
       fetch(`${endpointBase}/auth/me`, {
         headers: { Authorization: `Bearer ${authToken}` },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401 || res.status === 403) {
+            handleLogout();
+            return null;
+          }
+          return res.json();
+        })
         .then((data) => {
+          if (!data) return;
           if (data.authenticated && data.role) {
             setCurrentUserRole(data.role);
             localStorage.setItem('certifyied_autodialer_role', data.role);
@@ -509,6 +525,8 @@ export default function Autodialer() {
               setCurrentUserEmail(data.email);
               localStorage.setItem('certifyied_autodialer_email', data.email);
             }
+          } else {
+            handleLogout();
           }
         })
         .catch(() => {});
@@ -999,14 +1017,20 @@ export default function Autodialer() {
               </p>
 
               {devMagicLink && (
-                <div className="mt-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-left">
-                  <span className="text-[10px] uppercase font-bold text-amber-700 block mb-1">Developer Quick Link</span>
+                <div className="mt-5 p-4 rounded-2xl bg-blue-50/80 border border-blue-200 text-left">
+                  <div className="flex items-center gap-1.5 text-blue-800 mb-1">
+                    <Zap className="w-4 h-4 text-[#0071e3]" />
+                    <span className="text-xs font-semibold uppercase tracking-wider">Instant Access</span>
+                  </div>
+                  <p className="text-xs text-blue-700/90 mb-3 leading-relaxed">
+                    Email dispatched! You can also enter the Autodialer immediately with one click:
+                  </p>
                   <a
                     href={devMagicLink}
-                    className="text-xs text-[#0071e3] hover:underline break-all flex items-center gap-1 font-medium"
+                    className="w-full py-3 px-4 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white font-medium text-xs transition-all shadow-md shadow-[#0071e3]/25 flex items-center justify-center gap-2"
                   >
-                    <span>Click here to open link instantly</span>
-                    <ExternalLink className="w-3 h-3 shrink-0" />
+                    <span>Enter Autodialer Instantly</span>
+                    <ArrowRight className="w-4 h-4" />
                   </a>
                 </div>
               )}
