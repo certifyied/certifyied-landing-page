@@ -60,6 +60,12 @@ export default function CertLogin() {
           >
             ⭐ Customer Reviews
           </button>
+          <a
+            href="/autodailer"
+            className="px-4 py-1.5 rounded-md text-sm font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 flex items-center gap-1.5"
+          >
+            📞 Sales Autodialer
+          </a>
         </div>
 
         <a

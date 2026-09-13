@@ -9,6 +9,7 @@ import BlogLogin from "./pages/BlogLogin";
 import BlogPost from "./pages/BlogPost";
 import CertLogin from "./pages/CertLogin";
 import VenerableThomasPaulRamban from "./pages/VenerableThomasPaulRamban";
+import Autodialer from "./pages/Autodialer";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/autodailer" element={<Autodialer />} />
+          <Route path="/autodialer" element={<Autodialer />} />
           <Route path="/blogin" element={<BlogLogin />} />
           <Route path="/certlogin" element={<CertLogin />} />
           <Route path="/blog" element={<BlogPost />} />
