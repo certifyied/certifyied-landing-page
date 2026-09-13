@@ -34,7 +34,9 @@ import {
   Check,
   UserPlus,
   Share2,
-  PlusSquare
+  PlusSquare,
+  Copy,
+  Send
 } from 'lucide-react';
 
 interface Lead {
@@ -169,6 +171,10 @@ export default function Autodialer() {
   const [newSalesEmail, setNewSalesEmail] = useState('');
   const [newSalesRole, setNewSalesRole] = useState<'sales' | 'admin'>('sales');
   const [isAddingSalesEmail, setIsAddingSalesEmail] = useState(false);
+  const [sendInviteOnAdd, setSendInviteOnAdd] = useState(true);
+  const [sendingInviteEmail, setSendingInviteEmail] = useState<string | null>(null);
+  const [lastGeneratedInvite, setLastGeneratedInvite] = useState<{ email: string; link: string } | null>(null);
+  const [copiedLinkEmail, setCopiedLinkEmail] = useState<string | null>(null);
 
   // Campaign & Leads State
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -357,7 +363,13 @@ export default function Autodialer() {
         if (data.devMagicLink) {
           setDevMagicLink(data.devMagicLink);
         }
-        showToast(`Magic login link sent to ${normalizedEmail}`);
+        if (data.emailSent) {
+          showToast(`Magic login link sent to ${normalizedEmail}`);
+        } else if (data.emailDelivery?.error) {
+          showToast(`Direct login link ready below. (Email: ${data.emailDelivery.error})`);
+        } else {
+          showToast(`Magic login link generated for ${normalizedEmail}`);
+        }
       } else {
         setAuthError(
           data.error || 'Unauthorized email. This email is not in the database. Ask an admin to add it.'
@@ -469,6 +481,7 @@ export default function Autodialer() {
 
     setIsAddingSalesEmail(true);
     const normalized = newSalesEmail.trim().toLowerCase();
+    const redirectUrl = `${window.location.origin}${window.location.pathname}`;
 
     try {
       const res = await fetch(`${endpointBase}/sales-team`, {
@@ -480,12 +493,47 @@ export default function Autodialer() {
         body: JSON.stringify({
           email: normalized,
           role: newSalesRole,
+          sendInvite: sendInviteOnAdd,
+          redirectUrl,
         }),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
-        showToast(`Registered ${normalized} as ${newSalesRole.toUpperCase()}`);
+        if (data.inviteSent) {
+          showToast(`Registered & sent login link to ${normalized}!`);
+        } else if (sendInviteOnAdd) {
+          // Explicitly trigger send-magic-link as guarantee
+          try {
+            const mlRes = await fetch(`${apiBase}/adminApiBlog/auth/send-magic-link`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: normalized,
+                redirectUrl,
+                portalType: 'sales',
+              }),
+            });
+            const mlData = await mlRes.json();
+            if (mlRes.ok && mlData.success) {
+              showToast(`Login link dispatched to ${normalized}`);
+              if (mlData.devMagicLink) {
+                setLastGeneratedInvite({ email: normalized, link: mlData.devMagicLink });
+              }
+            } else {
+              showToast(`Registered ${normalized}. Email: ${data.inviteError || 'Check settings'}`);
+            }
+          } catch (mlErr) {
+            showToast(`Registered ${normalized} as ${newSalesRole.toUpperCase()}`);
+          }
+        } else {
+          showToast(`Registered ${normalized} as ${newSalesRole.toUpperCase()}`);
+        }
+
+        if (data.inviteLink) {
+          setLastGeneratedInvite({ email: normalized, link: data.inviteLink });
+        }
+
         setNewSalesEmail('');
         setShowAddSalesForm(false);
         fetchSalesTeam();
@@ -497,6 +545,90 @@ export default function Autodialer() {
       showToast('Error connecting to database.');
     } finally {
       setIsAddingSalesEmail(false);
+    }
+  };
+
+  const handleSendMemberInvite = async (memberEmail: string) => {
+    setSendingInviteEmail(memberEmail);
+    const redirectUrl = `${window.location.origin}${window.location.pathname}`;
+    try {
+      const res = await fetch(`${endpointBase}/sales-team/send-invite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          email: memberEmail,
+          redirectUrl,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.emailSent) {
+          showToast(`Login email dispatched to ${memberEmail}!`);
+        } else {
+          showToast(`Invite generated for ${memberEmail}. Email: ${data.emailError || 'Failed'}`);
+        }
+        if (data.magicLink) {
+          setLastGeneratedInvite({ email: memberEmail, link: data.magicLink });
+        }
+      } else {
+        // Direct send-magic-link fallback
+        const fallbackRes = await fetch(`${apiBase}/adminApiBlog/auth/send-magic-link`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: memberEmail,
+            redirectUrl,
+            portalType: 'sales',
+          }),
+        });
+        const fbData = await fallbackRes.json();
+        if (fallbackRes.ok && fbData.success) {
+          showToast(`Login email dispatched to ${memberEmail}!`);
+          if (fbData.devMagicLink) {
+            setLastGeneratedInvite({ email: memberEmail, link: fbData.devMagicLink });
+          }
+        } else {
+          showToast(data.error || fbData.error || 'Failed to trigger invite email.');
+        }
+      }
+    } catch (e: any) {
+      showToast('Network error triggering invite email.');
+    } finally {
+      setSendingInviteEmail(null);
+    }
+  };
+
+  const handleCopyMemberInviteLink = async (memberEmail: string) => {
+    const redirectUrl = `${window.location.origin}${window.location.pathname}`;
+    try {
+      const res = await fetch(`${endpointBase}/sales-team/send-invite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          email: memberEmail,
+          redirectUrl,
+        }),
+      });
+      const data = await res.json();
+      const link = data.magicLink;
+      if (link) {
+        await navigator.clipboard.writeText(link);
+        setCopiedLinkEmail(memberEmail);
+        setTimeout(() => setCopiedLinkEmail(null), 2500);
+        showToast(`Magic login link copied to clipboard!`);
+        setLastGeneratedInvite({ email: memberEmail, link });
+      } else {
+        showToast('Could not generate magic link.');
+      }
+    } catch (e) {
+      showToast('Failed to copy login link.');
     }
   };
 
@@ -2412,6 +2544,20 @@ export default function Autodialer() {
                         </button>
                       </div>
                     </div>
+                    <div className="sm:col-span-2 pt-1 pb-1">
+                      <label className="flex items-center gap-2.5 cursor-pointer select-none bg-blue-50/60 hover:bg-blue-50 p-2.5 rounded-2xl border border-[#0071e3]/20 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={sendInviteOnAdd}
+                          onChange={(e) => setSendInviteOnAdd(e.target.checked)}
+                          className="w-4 h-4 rounded text-[#0071e3] focus:ring-[#0071e3] border-zinc-300"
+                        />
+                        <div className="flex items-center gap-1.5 text-xs text-[#1d1d1f] font-medium">
+                          <Mail className="w-3.5 h-3.5 text-[#0071e3]" />
+                          <span>Automatically dispatch magic login link to this member's email</span>
+                        </div>
+                      </label>
+                    </div>
                   </div>
 
                   <div className="flex justify-end gap-2 pt-2">
@@ -2432,12 +2578,47 @@ export default function Autodialer() {
                       ) : (
                         <>
                           <Plus className="w-3.5 h-3.5" />
-                          <span>Add to Database</span>
+                          <span>{sendInviteOnAdd ? 'Add & Send Login Email' : 'Add to Database'}</span>
                         </>
                       )}
                     </button>
                   </div>
                 </form>
+              </div>
+            )}
+
+            {/* LAST GENERATED INVITE BANNER WITH 1-CLICK COPY */}
+            {lastGeneratedInvite && (
+              <div className="p-4 rounded-3xl bg-emerald-50 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-emerald-900 shadow-sm animate-in fade-in">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-xs text-[#1d1d1f]">Login Link Ready for {lastGeneratedInvite.email}</div>
+                    <div className="text-emerald-800 text-[11px] mt-0.5">
+                      Email has been triggered! You can also share the direct login link:
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(lastGeneratedInvite.link);
+                      showToast('Login link copied to clipboard!');
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-white border border-emerald-300 text-emerald-800 font-semibold hover:bg-emerald-100 transition-all flex items-center gap-1.5 text-xs shadow-sm"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Direct Login URL</span>
+                  </button>
+                  <button
+                    onClick={() => setLastGeneratedInvite(null)}
+                    className="p-2 rounded-full hover:bg-emerald-100 text-emerald-600 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
 
@@ -2462,7 +2643,7 @@ export default function Autodialer() {
                       <th className="py-3 px-4">Member Email</th>
                       <th className="py-3 px-4">Role</th>
                       <th className="py-3 px-4">Authorized Date</th>
-                      <th className="py-3 px-4">Action</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100 text-zinc-700">
@@ -2483,16 +2664,47 @@ export default function Autodialer() {
                         <td className="py-3.5 px-4 text-[#86868b]">
                           {m.created_at ? new Date(m.created_at).toLocaleDateString() : 'Active Member'}
                         </td>
-                        <td className="py-3.5 px-4">
-                          {m.email !== currentUserEmail && (
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Trigger / Resend Login Email */}
                             <button
-                              onClick={() => handleDeleteSalesMember(m.email)}
-                              className="p-1.5 rounded-xl hover:bg-red-50 text-zinc-400 hover:text-red-600 transition-colors"
-                              title="Revoke access"
+                              onClick={() => handleSendMemberInvite(m.email)}
+                              disabled={sendingInviteEmail === m.email}
+                              className="px-2.5 py-1.5 rounded-xl bg-[#0071e3]/10 hover:bg-[#0071e3]/20 text-[#0071e3] transition-colors flex items-center gap-1 font-medium text-[11px]"
+                              title={`Send instant login link email to ${m.email}`}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              {sendingInviteEmail === m.email ? (
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Mail className="w-3.5 h-3.5" />
+                              )}
+                              <span>Send Email</span>
                             </button>
-                          )}
+
+                            {/* Copy Direct Magic Link */}
+                            <button
+                              onClick={() => handleCopyMemberInviteLink(m.email)}
+                              className="p-1.5 rounded-xl hover:bg-zinc-100 text-zinc-500 hover:text-zinc-800 transition-colors"
+                              title="Generate and copy direct login link"
+                            >
+                              {copiedLinkEmail === m.email ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+
+                            {/* Revoke Access */}
+                            {m.email !== currentUserEmail && (
+                              <button
+                                onClick={() => handleDeleteSalesMember(m.email)}
+                                className="p-1.5 rounded-xl hover:bg-red-50 text-zinc-400 hover:text-red-600 transition-colors"
+                                title="Revoke database access"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
