@@ -108,7 +108,7 @@ interface QualifiedLead {
   name: string;
   phone: string;
   sales_email: string;
-  duration_seconds: number;
+  duration_seconds?: number;
   notes: string;
   feedback_status: string;
   callback_at?: string;
@@ -1079,15 +1079,24 @@ export default function Autodialer() {
       showToast('No qualified leads to export.');
       return;
     }
-    const headers = ['Name', 'Phone', 'Duration (sec)', 'Sales Rep', 'Notes', 'Date Qualified'];
-    const rows = qualifiedLeadsList.map((q) => [
-      `"${q.name.replace(/"/g, '""')}"`,
-      `"${q.phone}"`,
-      q.duration_seconds,
-      `"${q.sales_email}"`,
-      `"${(q.notes || '').replace(/"/g, '""')}"`,
-      `"${new Date(q.created_at).toLocaleDateString()}"`,
-    ]);
+    const headers = isAdmin
+      ? ['Name', 'Phone', 'Duration (sec)', 'Sales Rep', 'Notes', 'Date Qualified']
+      : ['Name', 'Phone', 'Sales Rep', 'Notes', 'Date Qualified'];
+    const rows = qualifiedLeadsList.map((q) => {
+      const row = [
+        `"${q.name.replace(/"/g, '""')}"`,
+        `"${q.phone}"`,
+      ];
+      if (isAdmin) {
+        row.push(String(q.duration_seconds ?? 0));
+      }
+      row.push(
+        `"${q.sales_email}"`,
+        `"${(q.notes || '').replace(/"/g, '""')}"`,
+        `"${new Date(q.created_at).toLocaleDateString()}"`
+      );
+      return row;
+    });
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
@@ -1663,28 +1672,24 @@ export default function Autodialer() {
                 Live Session
               </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
               <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
                 <span className="text-[10px] text-[#86868b] uppercase tracking-wider block">My Calls</span>
                 <span className="text-xl font-bold text-[#1d1d1f]">{analyticsStats?.totalCalls || 0}</span>
               </div>
               <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
-                <span className="text-[10px] text-[#86868b] uppercase tracking-wider block">My Talk Time</span>
-                <span className="text-xl font-bold text-[#1d1d1f] font-mono">
-                  {formatSeconds(analyticsStats?.totalDurationSeconds || 0)}
-                </span>
-              </div>
-              <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
-                <span className="text-[10px] text-[#86868b] uppercase tracking-wider block">Avg Duration</span>
-                <span className="text-xl font-bold text-[#1d1d1f] font-mono">
-                  {formatSeconds(analyticsStats?.avgDurationSeconds || 0)}
+                <span className="text-[10px] text-[#86868b] uppercase tracking-wider block">Connected Leads</span>
+                <span className="text-xl font-bold text-emerald-600">
+                  {analyticsStats?.connectedCalls ?? (
+                    Math.max(0, (analyticsStats?.totalCalls || 0) - (feedbackBreakdown['Busy / No Answer'] || 0) - (feedbackBreakdown['Wrong Number'] || 0))
+                  )}
                 </span>
               </div>
               <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/50">
                 <span className="text-[10px] text-emerald-800 uppercase tracking-wider block">Qualified</span>
                 <span className="text-xl font-bold text-emerald-600">{analyticsStats?.totalQualified || 0}</span>
               </div>
-              <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100 col-span-2 sm:col-span-1">
+              <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
                 <span className="text-[10px] text-[#86868b] uppercase tracking-wider block">Conversion</span>
                 <span className="text-xl font-bold text-[#0071e3]">{analyticsStats?.conversionRate || 0}%</span>
               </div>
@@ -2788,16 +2793,33 @@ export default function Autodialer() {
                   {currentLead?.phone || ''}
                 </div>
 
-                <div className="my-8 flex items-center justify-center gap-3">
-                  <Clock className="w-5 h-5 text-emerald-600" />
-                  <span className="text-4xl font-mono font-bold text-[#1d1d1f] tracking-wider">
-                    {formatSeconds(callDuration)}
-                  </span>
-                </div>
+                {isAdmin ? (
+                  <div className="my-8 flex items-center justify-center gap-3">
+                    <Clock className="w-5 h-5 text-emerald-600" />
+                    <span className="text-4xl font-mono font-bold text-[#1d1d1f] tracking-wider">
+                      {formatSeconds(callDuration)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="my-8 flex flex-col items-center justify-center gap-2">
+                    <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold shadow-sm">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                      </span>
+                      <span>Live Call Session Active</span>
+                    </div>
+                    <p className="text-xs text-[#86868b] max-w-sm text-center mt-1">
+                      Call is in progress with customer. Click below when finished to record notes.
+                    </p>
+                  </div>
+                )}
 
-                <p className="text-xs text-[#86868b] max-w-md mx-auto mb-6">
-                  Redirected to telephone dialer. Timing is actively measured. Click below whenever the conversation ends to record call feedback.
-                </p>
+                {isAdmin && (
+                  <p className="text-xs text-[#86868b] max-w-md mx-auto mb-6">
+                    Redirected to telephone dialer. Telemetry actively measured. Click below whenever the conversation ends to record call feedback.
+                  </p>
+                )}
 
                 <div className="flex justify-center gap-3">
                   <button
@@ -2823,8 +2845,20 @@ export default function Autodialer() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-[#86868b] block">Total Duration</span>
-                    <span className="text-2xl font-mono font-bold text-emerald-600">{formatSeconds(callDuration)}</span>
+                    {isAdmin ? (
+                      <>
+                        <span className="text-xs text-[#86868b] block">Total Duration</span>
+                        <span className="text-2xl font-mono font-bold text-emerald-600">{formatSeconds(callDuration)}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xs text-[#86868b] block">Session Status</span>
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full mt-1">
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          Call Logged
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -3163,7 +3197,7 @@ export default function Autodialer() {
                     <tr>
                       <th className="py-3 px-4">Contact</th>
                       <th className="py-3 px-4">Phone</th>
-                      <th className="py-3 px-4">Duration</th>
+                      {isAdmin && <th className="py-3 px-4">Duration</th>}
                       <th className="py-3 px-4">Sales Rep</th>
                       <th className="py-3 px-4">Notes</th>
                       <th className="py-3 px-4">Action</th>
@@ -3174,9 +3208,11 @@ export default function Autodialer() {
                       <tr key={q.id} className="hover:bg-zinc-50 transition-colors">
                         <td className="py-3.5 px-4 font-semibold text-[#1d1d1f]">{q.name}</td>
                         <td className="py-3.5 px-4 font-mono text-zinc-600">{q.phone}</td>
-                        <td className="py-3.5 px-4 font-mono text-emerald-600 font-medium">
-                          {formatSeconds(q.duration_seconds)}
-                        </td>
+                        {isAdmin && (
+                          <td className="py-3.5 px-4 font-mono text-emerald-600 font-medium">
+                            {formatSeconds(q.duration_seconds || 0)}
+                          </td>
+                        )}
                         <td className="py-3.5 px-4 text-[#86868b]">{q.sales_email}</td>
                         <td className="py-3.5 px-4 max-w-xs truncate text-zinc-600">{q.notes || '—'}</td>
                         <td className="py-3.5 px-4">
@@ -3193,7 +3229,7 @@ export default function Autodialer() {
 
                     {qualifiedLeadsList.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="py-12 text-center text-zinc-400 text-xs">
+                        <td colSpan={isAdmin ? 6 : 5} className="py-12 text-center text-zinc-400 text-xs">
                           No qualified leads recorded yet.
                         </td>
                       </tr>
@@ -3214,7 +3250,7 @@ export default function Autodialer() {
               <div>
                 <h2 className="text-2xl font-bold tracking-tight text-[#1d1d1f]">My Calling Performance</h2>
                 <p className="text-xs text-[#86868b] mt-1">
-                  Your individual dialer statistics, conversation durations, and conversions.
+                  Your individual dialer statistics, outreach outcomes, and qualified lead conversions.
                 </p>
               </div>
               <button
@@ -3229,7 +3265,7 @@ export default function Autodialer() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white rounded-3xl p-5 border border-black/10 shadow-sm">
                 <div className="flex items-center justify-between text-[#86868b] text-xs uppercase tracking-wider mb-2 font-semibold">
-                  <span>My Calls</span>
+                  <span>Total Calls</span>
                   <PhoneCall className="w-4 h-4 text-[#0071e3]" />
                 </div>
                 <div className="text-3xl font-bold text-[#1d1d1f] tracking-tight">
@@ -3240,24 +3276,15 @@ export default function Autodialer() {
 
               <div className="bg-white rounded-3xl p-5 border border-black/10 shadow-sm">
                 <div className="flex items-center justify-between text-[#86868b] text-xs uppercase tracking-wider mb-2 font-semibold">
-                  <span>My Talk Time</span>
-                  <Clock className="w-4 h-4 text-emerald-600" />
+                  <span>Connected Leads</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 </div>
-                <div className="text-3xl font-bold text-[#1d1d1f] tracking-tight font-mono">
-                  {formatSeconds(analyticsStats?.totalDurationSeconds || 0)}
+                <div className="text-3xl font-bold text-emerald-600 tracking-tight">
+                  {analyticsStats?.connectedCalls ?? (
+                    Math.max(0, (analyticsStats?.totalCalls || 0) - (feedbackBreakdown['Busy / No Answer'] || 0) - (feedbackBreakdown['Wrong Number'] || 0))
+                  )}
                 </div>
-                <div className="text-[11px] text-[#86868b] mt-1">Cumulative duration</div>
-              </div>
-
-              <div className="bg-white rounded-3xl p-5 border border-black/10 shadow-sm">
-                <div className="flex items-center justify-between text-[#86868b] text-xs uppercase tracking-wider mb-2 font-semibold">
-                  <span>Avg Duration</span>
-                  <BarChart3 className="w-4 h-4 text-amber-500" />
-                </div>
-                <div className="text-3xl font-bold text-[#1d1d1f] tracking-tight font-mono">
-                  {formatSeconds(analyticsStats?.avgDurationSeconds || 0)}
-                </div>
-                <div className="text-[11px] text-[#86868b] mt-1">Average conversation length</div>
+                <div className="text-[11px] text-[#86868b] mt-1">Direct customer conversations</div>
               </div>
 
               <div className="bg-white rounded-3xl p-5 border border-black/10 shadow-sm">
@@ -3265,12 +3292,21 @@ export default function Autodialer() {
                   <span>Qualified Leads</span>
                   <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                 </div>
-                <div className="text-3xl font-bold text-emerald-600 tracking-tight">
+                <div className="text-3xl font-bold text-[#0071e3] tracking-tight">
                   {analyticsStats?.totalQualified || 0}
                 </div>
-                <div className="text-[11px] text-[#86868b] mt-1">
-                  {analyticsStats?.conversionRate || 0}% conversion rate
+                <div className="text-[11px] text-[#86868b] mt-1">Vaulted for deal closing</div>
+              </div>
+
+              <div className="bg-white rounded-3xl p-5 border border-black/10 shadow-sm">
+                <div className="flex items-center justify-between text-[#86868b] text-xs uppercase tracking-wider mb-2 font-semibold">
+                  <span>Conversion Rate</span>
+                  <Zap className="w-4 h-4 text-amber-500" />
                 </div>
+                <div className="text-3xl font-bold text-[#1d1d1f] tracking-tight">
+                  {analyticsStats?.conversionRate || 0}%
+                </div>
+                <div className="text-[11px] text-[#86868b] mt-1">Qualified to dialed ratio</div>
               </div>
             </div>
 
@@ -3304,7 +3340,7 @@ export default function Autodialer() {
                     <tr>
                       <th className="py-3 px-4">Contact</th>
                       <th className="py-3 px-4">Phone</th>
-                      <th className="py-3 px-4">Duration</th>
+                      <th className="py-3 px-4">Call Time</th>
                       <th className="py-3 px-4">Outcome</th>
                       <th className="py-3 px-4">Notes</th>
                     </tr>
@@ -3314,14 +3350,8 @@ export default function Autodialer() {
                       <tr key={log.id} className="hover:bg-zinc-50 transition-colors">
                         <td className="py-3 px-4 font-semibold text-[#1d1d1f]">{log.lead_name}</td>
                         <td className="py-3 px-4 font-mono text-zinc-600">{log.phone}</td>
-                        <td className="py-3 px-4 font-mono text-emerald-600 font-medium">
-                          {log.duration_seconds && log.duration_seconds > 0 ? (
-                            formatSeconds(log.duration_seconds)
-                          ) : log.returned_at && log.redirected_at ? (
-                            formatSeconds(Math.max(1, Math.round((new Date(log.returned_at).getTime() - new Date(log.redirected_at).getTime()) / 1000)))
-                          ) : (
-                            <span className="text-zinc-400 font-normal">00:00 (Incomplete)</span>
-                          )}
+                        <td className="py-3 px-4 text-[#86868b]">
+                          {log.created_at ? new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Today'}
                         </td>
                         <td className="py-3 px-4">
                           <span
