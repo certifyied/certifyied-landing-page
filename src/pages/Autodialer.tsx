@@ -36,7 +36,8 @@ import {
   Share2,
   PlusSquare,
   Copy,
-  Send
+  Send,
+  Bell
 } from 'lucide-react';
 
 interface Lead {
@@ -122,7 +123,21 @@ interface SalesMember {
   created_at: string;
 }
 
-type AutodialerTab = 'queue' | 'upload' | 'qualified' | 'analytics' | 'admin_overview' | 'admin_fraud' | 'admin_team';
+interface ScheduledCallback {
+  id: string;
+  call_log_id?: string;
+  lead_id?: string;
+  campaign_id?: string;
+  sales_email: string;
+  lead_name: string;
+  phone: string;
+  callback_time: string;
+  notes?: string;
+  status: 'pending' | 'completed' | 'cancelled';
+  created_at: string;
+}
+
+type AutodialerTab = 'queue' | 'upload' | 'qualified' | 'callbacks' | 'analytics' | 'admin_overview' | 'admin_fraud' | 'admin_team';
 
 export default function Autodialer() {
   // Configuration
@@ -213,6 +228,12 @@ export default function Autodialer() {
   const [feedbackBreakdown, setFeedbackBreakdown] = useState<Record<string, number>>({});
   const [qualifiedLeadsList, setQualifiedLeadsList] = useState<QualifiedLead[]>([]);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
+
+  // Callbacks State
+  const [callbacksList, setCallbacksList] = useState<ScheduledCallback[]>([]);
+  const [isLoadingCallbacks, setIsLoadingCallbacks] = useState(false);
+  const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
+  const scheduledTimeoutsRef = useRef<{ [key: string]: any }>({});
 
   // Admin Drilldown & Fraud Filtering
   const [selectedRepFilter, setSelectedRepFilter] = useState<string>('all');
@@ -457,6 +478,117 @@ export default function Autodialer() {
     }
   };
 
+  const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) return false;
+    try {
+      if (Notification.permission === 'granted') {
+        setHasNotificationPermission(true);
+        return true;
+      }
+      const perm = await Notification.requestPermission();
+      const granted = perm === 'granted';
+      setHasNotificationPermission(granted);
+      if (granted) {
+        showToast('🔔 Browser notifications enabled for scheduled callbacks!');
+      }
+      return granted;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const triggerDesktopNotification = (title: string, body: string, phone?: string) => {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      const notif = new Notification(title, {
+        body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+      });
+      notif.onclick = () => {
+        window.focus();
+        if (phone) triggerPhoneDial(phone);
+        notif.close();
+      };
+    } catch (e) {
+      console.warn('Desktop notification error:', e);
+    }
+  };
+
+  const scheduleCallbackAlarms = (callbacksToSchedule: ScheduledCallback[]) => {
+    Object.values(scheduledTimeoutsRef.current).forEach((t) => clearTimeout(t));
+    scheduledTimeoutsRef.current = {};
+
+    const now = Date.now();
+    callbacksToSchedule.forEach((cb) => {
+      if (cb.status !== 'pending') return;
+      const targetTime = new Date(cb.callback_time).getTime();
+      const diff = targetTime - now;
+
+      if (diff > 0 && diff <= 24 * 60 * 60 * 1000) {
+        scheduledTimeoutsRef.current[cb.id] = setTimeout(() => {
+          triggerDesktopNotification(
+            `📞 Callback Due: ${cb.lead_name}`,
+            `Scheduled call with ${cb.phone} is due now. Click to dial!`,
+            cb.phone
+          );
+        }, diff);
+      }
+    });
+  };
+
+  const loadCallbacks = async () => {
+    if (!authToken) return;
+    setIsLoadingCallbacks(true);
+    try {
+      const res = await fetch(`${endpointBase}/callbacks?status=pending`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const data = await res.json();
+      if (data.callbacks) {
+        setCallbacksList(data.callbacks);
+        scheduleCallbackAlarms(data.callbacks);
+      }
+    } catch (e) {
+      console.warn('Callbacks fetch error:', e);
+    } finally {
+      setIsLoadingCallbacks(false);
+    }
+  };
+
+  const handleUpdateCallbackStatus = async (callbackId: string, status: 'completed' | 'cancelled') => {
+    if (!authToken) return;
+    try {
+      const res = await fetch(`${endpointBase}/callbacks/${callbackId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) {
+        showToast(status === 'completed' ? '✅ Callback completed!' : 'Callback dismissed');
+        loadCallbacks();
+      }
+    } catch (e) {
+      showToast('Could not update callback status');
+    }
+  };
+
+  const handleDialCallback = (cb: ScheduledCallback) => {
+    const leadObj: Lead = {
+      id: cb.lead_id || crypto.randomUUID(),
+      campaign_id: cb.campaign_id || '',
+      name: cb.lead_name,
+      phone: cb.phone,
+      status: 'pending',
+      call_count: 0,
+    };
+    setActiveTab('queue');
+    handleStartCall(leadObj);
+  };
+
   const fetchSalesTeam = async () => {
     if (!authToken) return;
     setIsLoadingTeam(true);
@@ -679,6 +811,7 @@ export default function Autodialer() {
 
       loadAnalytics();
       loadQualifiedLeads();
+      loadCallbacks();
       fetchCampaigns();
       if (isAdmin) fetchSalesTeam();
     }
@@ -691,6 +824,9 @@ export default function Autodialer() {
     }
     if (activeTab === 'qualified') {
       loadQualifiedLeads();
+    }
+    if (activeTab === 'callbacks') {
+      loadCallbacks();
     }
     if (activeTab === 'admin_team') {
       fetchSalesTeam();
@@ -979,6 +1115,11 @@ export default function Autodialer() {
       return;
     }
 
+    if (feedbackStatus === 'Call Back' && !callbackTime) {
+      showToast('⚠️ Please select a date and time for the scheduled callback!');
+      return;
+    }
+
     setIsSubmittingFeedback(true);
     const isQualified = feedbackStatus === 'Qualified Lead';
 
@@ -1027,7 +1168,13 @@ export default function Autodialer() {
         setLeads(updatedLeads);
       }
 
-      showToast(isQualified ? '🌟 Added to Qualified Leads vault!' : 'Call log saved');
+      if (feedbackStatus === 'Call Back' && callbackTime) {
+        requestNotificationPermission();
+        showToast('📅 Callback scheduled! Email confirmation sent.');
+        loadCallbacks();
+      } else {
+        showToast(isQualified ? '🌟 Added to Qualified Leads vault!' : 'Call log saved');
+      }
 
       setFeedbackNotes('');
       setCallbackTime('');
@@ -1496,6 +1643,22 @@ export default function Autodialer() {
                   Sales Team
                 </button>
                 <button
+                  onClick={() => { setActiveTab('callbacks'); loadCallbacks(); }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                    activeTab === 'callbacks'
+                      ? 'bg-white text-[#1d1d1f] shadow-sm font-semibold'
+                      : 'text-zinc-500 hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                  Callbacks
+                  {callbacksList.length > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-blue-600 text-white text-[10px] font-bold">
+                      {callbacksList.length}
+                    </span>
+                  )}
+                </button>
+                <button
                   onClick={() => setActiveTab('queue')}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
                     activeTab === 'queue'
@@ -1535,6 +1698,20 @@ export default function Autodialer() {
                 >
                   <Star className="w-3.5 h-3.5 text-amber-500" />
                   My Qualified Leads
+                </button>
+                <button
+                  onClick={() => { setActiveTab('callbacks'); loadCallbacks(); }}
+                  className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                    activeTab === 'callbacks' ? 'bg-white text-[#1d1d1f] shadow-sm font-semibold' : 'text-zinc-500 hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                  Callbacks
+                  {callbacksList.length > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-blue-600 text-white text-[10px] font-bold">
+                      {callbacksList.length}
+                    </span>
+                  )}
                 </button>
                 <button
                   onClick={() => setActiveTab('analytics')}
@@ -1609,6 +1786,14 @@ export default function Autodialer() {
                 Qualified
               </button>
               <button
+                onClick={() => { setActiveTab('callbacks'); loadCallbacks(); }}
+                className={`text-xs font-medium py-1 px-2 whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === 'callbacks' ? 'text-blue-600 font-semibold' : 'text-zinc-500'
+                }`}
+              >
+                Callbacks {callbacksList.length > 0 && `(${callbacksList.length})`}
+              </button>
+              <button
                 onClick={() => setActiveTab('admin_team')}
                 className={`text-xs font-medium py-1 px-2 whitespace-nowrap ${
                   activeTab === 'admin_team' ? 'text-[#0071e3] font-semibold' : 'text-zinc-500'
@@ -1644,6 +1829,14 @@ export default function Autodialer() {
                 className={`text-xs font-medium py-1 px-2 ${activeTab === 'qualified' ? 'text-amber-600 font-semibold' : 'text-zinc-500'}`}
               >
                 Qualified
+              </button>
+              <button
+                onClick={() => { setActiveTab('callbacks'); loadCallbacks(); }}
+                className={`text-xs font-medium py-1 px-2 flex items-center gap-1 ${
+                  activeTab === 'callbacks' ? 'text-blue-600 font-semibold' : 'text-zinc-500'
+                }`}
+              >
+                Callbacks {callbacksList.length > 0 && `(${callbacksList.length})`}
               </button>
               <button
                 onClick={() => setActiveTab('analytics')}
@@ -2893,18 +3086,76 @@ export default function Autodialer() {
                   </div>
 
                   {feedbackStatus === 'Call Back' && (
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-[#86868b] font-semibold mb-1.5">
-                        Scheduled Callback Time
-                      </label>
+                    <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3 animate-in fade-in duration-200">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs uppercase tracking-wider text-amber-800 font-bold flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4 text-amber-600" />
+                          <span>Scheduled Callback Time (Required)</span>
+                        </label>
+                        {!hasNotificationPermission && (
+                          <button
+                            type="button"
+                            onClick={requestNotificationPermission}
+                            className="text-[11px] text-[#0071e3] font-medium flex items-center gap-1 hover:underline"
+                          >
+                            <Bell className="w-3 h-3" />
+                            Enable Browser Alerts
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Quick Shortcut Buttons */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                        {[
+                          { label: '+30 Min', getMs: () => Date.now() + 30 * 60 * 1000 },
+                          { label: '+1 Hour', getMs: () => Date.now() + 60 * 60 * 1000 },
+                          {
+                            label: 'Tomorrow 10 AM',
+                            getMs: () => {
+                              const d = new Date();
+                              d.setDate(d.getDate() + 1);
+                              d.setHours(10, 0, 0, 0);
+                              return d.getTime();
+                            },
+                          },
+                          {
+                            label: 'Tomorrow 2 PM',
+                            getMs: () => {
+                              const d = new Date();
+                              d.setDate(d.getDate() + 1);
+                              d.setHours(14, 0, 0, 0);
+                              return d.getTime();
+                            },
+                          },
+                        ].map((preset) => (
+                          <button
+                            key={preset.label}
+                            type="button"
+                            onClick={() => {
+                              const target = new Date(preset.getMs() - new Date().getTimezoneOffset() * 60000);
+                              setCallbackTime(target.toISOString().slice(0, 16));
+                            }}
+                            className="py-1.5 px-2 rounded-xl bg-white border border-amber-200 hover:bg-amber-100/60 text-[11px] font-semibold text-amber-900 transition-colors shadow-xs"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+
                       <div className="relative">
-                        <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                        <Clock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-amber-600" />
                         <input
                           type="datetime-local"
+                          required
                           value={callbackTime}
                           onChange={(e) => setCallbackTime(e.target.value)}
-                          className="w-full pl-10 pr-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-2xl text-xs text-[#1d1d1f] focus:outline-none focus:ring-2 focus:ring-[#0071e3] focus:bg-white"
+                          className="w-full pl-10 pr-4 py-2.5 bg-white border border-amber-300 rounded-2xl text-xs text-[#1d1d1f] font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
                         />
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[11px] text-amber-800">
+                        <Bell className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        <span>Instant confirmation email will be sent to your inbox + browser reminder 15 mins prior.</span>
                       </div>
                     </div>
                   )}
@@ -3231,6 +3482,132 @@ export default function Autodialer() {
                       <tr>
                         <td colSpan={isAdmin ? 6 : 5} className="py-12 text-center text-zinc-400 text-xs">
                           No qualified leads recorded yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB: SCHEDULED CALLBACKS (APPOINTMENTS & REDIAL QUEUE)  */}
+        {/* ======================================================== */}
+        {activeTab === 'callbacks' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight text-[#1d1d1f] flex items-center gap-2">
+                  <Calendar className="w-6 h-6 text-blue-600" />
+                  {isAdmin ? 'Global Customer Callbacks' : 'My Scheduled Callbacks'}
+                </h2>
+                <p className="text-xs text-[#86868b] mt-1">
+                  Scheduled prospect callbacks with automated email alerts and desktop reminders.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {!hasNotificationPermission && (
+                  <button
+                    onClick={requestNotificationPermission}
+                    className="px-3.5 py-1.5 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-xs text-amber-800 font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+                  >
+                    <Bell className="w-3.5 h-3.5 text-amber-600" />
+                    Enable Desktop Alerts
+                  </button>
+                )}
+                <button
+                  onClick={loadCallbacks}
+                  className="px-3 py-1.5 rounded-2xl bg-white border border-black/10 hover:bg-zinc-50 text-xs text-zinc-700 font-medium flex items-center gap-1.5 shadow-sm"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingCallbacks ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-black/10 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-zinc-50 text-[#86868b] uppercase tracking-wider text-[10px] font-semibold border-b border-zinc-200">
+                    <tr>
+                      <th className="py-3 px-4">Contact</th>
+                      <th className="py-3 px-4">Phone</th>
+                      <th className="py-3 px-4">Scheduled Date & Time</th>
+                      <th className="py-3 px-4">Time Window</th>
+                      {isAdmin && <th className="py-3 px-4">Sales Rep</th>}
+                      <th className="py-3 px-4">Notes</th>
+                      <th className="py-3 px-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100 text-zinc-700">
+                    {callbacksList.map((cb) => {
+                      const cbDate = new Date(cb.callback_time);
+                      const isPast = cbDate.getTime() < Date.now();
+                      const isToday = cbDate.toDateString() === new Date().toDateString();
+
+                      return (
+                        <tr key={cb.id} className="hover:bg-zinc-50 transition-colors">
+                          <td className="py-3.5 px-4 font-semibold text-[#1d1d1f]">{cb.lead_name}</td>
+                          <td className="py-3.5 px-4 font-mono text-zinc-600">{cb.phone}</td>
+                          <td className="py-3.5 px-4 font-medium text-[#1d1d1f]">
+                            {cbDate.toLocaleString([], {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                                isPast
+                                  ? 'bg-red-50 text-red-700 border-red-200'
+                                  : isToday
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                  : 'bg-blue-50 text-blue-700 border-blue-200'
+                              }`}
+                            >
+                              {isPast ? 'Overdue' : isToday ? 'Today' : 'Upcoming'}
+                            </span>
+                          </td>
+                          {isAdmin && <td className="py-3.5 px-4 text-[#86868b]">{cb.sales_email}</td>}
+                          <td className="py-3.5 px-4 max-w-xs truncate text-zinc-600">{cb.notes || '—'}</td>
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => handleDialCallback(cb)}
+                                className="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold flex items-center gap-1 text-[11px] shadow-sm transition-all"
+                              >
+                                <Phone className="w-3 h-3" />
+                                Dial Now
+                              </button>
+                              <button
+                                onClick={() => handleUpdateCallbackStatus(cb.id, 'completed')}
+                                title="Mark as Completed"
+                                className="p-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-600 transition-colors"
+                              >
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              </button>
+                              <button
+                                onClick={() => handleUpdateCallbackStatus(cb.id, 'cancelled')}
+                                title="Dismiss Callback"
+                                className="p-1.5 rounded-xl bg-zinc-100 hover:bg-red-50 hover:text-red-600 text-zinc-500 transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+
+                    {callbacksList.length === 0 && (
+                      <tr>
+                        <td colSpan={isAdmin ? 7 : 6} className="py-12 text-center text-zinc-400 text-xs">
+                          {isLoadingCallbacks ? 'Loading callbacks...' : 'No pending scheduled callbacks in queue.'}
                         </td>
                       </tr>
                     )}
