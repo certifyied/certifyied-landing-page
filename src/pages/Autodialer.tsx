@@ -1439,11 +1439,17 @@ export default function Autodialer() {
 
         <div className="w-full max-w-md relative z-10">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-white border border-black/10 shadow-lg mb-5 backdrop-blur-xl">
-              <PhoneCall className="w-8 h-8 text-[#0071e3]" />
+            <div className="flex justify-center mb-4">
+              <a href="/" className="inline-block focus:outline-none">
+                <img
+                  src="/certifyied_logo.png"
+                  alt="Certifyied"
+                  className="h-8 sm:h-9 w-auto object-contain"
+                />
+              </a>
             </div>
-            <h1 className="text-3xl font-semibold tracking-tight text-[#1d1d1f]">Certifyied Autodialer</h1>
-            <p className="text-sm text-[#86868b] mt-2 font-normal">Magic Link Login</p>
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f]">Autodialer</h1>
+            <p className="text-sm text-[#86868b] mt-1 font-normal">Magic Link Login</p>
           </div>
 
           {magicLinkSentTo ? (
@@ -1571,15 +1577,18 @@ export default function Autodialer() {
       {/* --- APPLE TOP NAVIGATION BAR --- */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-black/10 px-6 py-3.5 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-[#0071e3] flex items-center justify-center shadow-md shadow-[#0071e3]/25">
-              <PhoneCall className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="text-[#1d1d1f] font-semibold tracking-tight text-sm">
-                Certifyied Autodialer
-              </span>
-            </div>
+          <div className="flex items-center gap-2.5">
+            <a href="/" className="flex items-center focus:outline-none" title="Certifyied Home">
+              <img
+                src="/certifyied_logo.png"
+                alt="Certifyied"
+                className="h-7 sm:h-8 w-auto object-contain"
+              />
+            </a>
+            <div className="h-4 w-px bg-black/15" />
+            <span className="text-[#1d1d1f] font-semibold tracking-tight text-sm">
+              Autodialer
+            </span>
           </div>
 
           {/* Center Segmented Control */}
