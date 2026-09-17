@@ -1577,7 +1577,7 @@ export default function Autodialer() {
       {/* --- APPLE TOP NAVIGATION BAR --- */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-black/10 px-6 py-3.5 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center">
             <a href="/" className="flex items-center focus:outline-none" title="Certifyied Home">
               <img
                 src="/certifyied_logo.png"
@@ -1585,10 +1585,6 @@ export default function Autodialer() {
                 className="h-7 sm:h-8 w-auto object-contain"
               />
             </a>
-            <div className="h-4 w-px bg-black/15" />
-            <span className="text-[#1d1d1f] font-semibold tracking-tight text-sm">
-              Autodialer
-            </span>
           </div>
 
           {/* Center Segmented Control */}
