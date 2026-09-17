@@ -1576,17 +1576,8 @@ export default function Autodialer() {
               <PhoneCall className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-[#1d1d1f] font-semibold tracking-tight text-sm flex items-center gap-2">
+              <span className="text-[#1d1d1f] font-semibold tracking-tight text-sm">
                 Certifyied Autodialer
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-medium tracking-wide uppercase border ${
-                    isAdmin
-                      ? 'bg-purple-50 text-purple-700 border-purple-200'
-                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  }`}
-                >
-                  {isAdmin ? 'Admin View' : 'Sales Rep View'}
-                </span>
               </span>
             </div>
           </div>
@@ -1744,7 +1735,9 @@ export default function Autodialer() {
             <div className="flex items-center gap-2">
               <div className="text-right hidden sm:block">
                 <div className="text-xs text-[#1d1d1f] font-medium">{currentUserEmail}</div>
-                <div className="text-[10px] text-[#86868b] uppercase tracking-wide">{currentUserRole}</div>
+                {isAdmin && (
+                  <div className="text-[10px] text-purple-600 font-medium uppercase tracking-wide">Admin</div>
+                )}
               </div>
               <button
                 onClick={handleLogout}
