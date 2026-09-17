@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { FileEdit, Star, PhoneCall, ArrowLeft } from "lucide-react";
+import anotherCertifyiedLogo from "@/assets/another_certifyied_logo.png";
 
 export default function CertLogin() {
   const isDev = import.meta.env.DEV;
@@ -33,46 +35,61 @@ export default function CertLogin() {
   return (
     <div className="w-full h-screen bg-[#0b0f19] overflow-hidden flex flex-col font-sans text-white">
       {/* Header and Tab Navigation */}
-      <header className="w-full bg-[#111827] border-b border-[#1f2937] py-3 px-6 flex flex-col md:flex-row justify-between items-center gap-4 z-10">
-        <div className="flex items-center gap-2">
-          <span className="text-[#f9fafb] font-bold text-lg tracking-wide">
-            Certifyied <span className="text-[#467222]">Portals</span>
+      <header className="w-full bg-[#0d1117]/95 backdrop-blur-xl border-b border-white/[0.08] py-2.5 px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-3 z-10 shadow-lg shadow-black/20">
+        <div className="flex items-center gap-2.5">
+          <a href="/" className="flex items-center focus:outline-none group">
+            <img
+              src={anotherCertifyiedLogo}
+              alt="Certifyied Logo"
+              className="h-7 sm:h-8 w-auto object-contain transition-opacity group-hover:opacity-90"
+            />
+          </a>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm">
+            Portals
           </span>
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex bg-[#0b0f19] p-1 rounded-lg border border-[#1f2937]">
+        <div className="flex items-center bg-[#161b22] p-1 rounded-2xl border border-white/[0.08] shadow-inner gap-1">
           <button
             onClick={() => setActiveTab("blog")}
-            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${activeTab === "blog"
-              ? "bg-[#467222] text-white shadow-lg"
-              : "text-gray-400 hover:text-white"
-              }`}
+            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-2 focus:outline-none ${
+              activeTab === "blog"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/50 font-semibold"
+                : "text-zinc-400 hover:text-white hover:bg-white/[0.05]"
+            }`}
           >
-            ✍️ Blog Admin
+            <FileEdit className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 ${activeTab === 'blog' ? 'scale-105 text-white' : 'text-emerald-400'}`} />
+            <span>Blog Admin</span>
           </button>
+
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${activeTab === "reviews"
-              ? "bg-[#467222] text-white shadow-lg"
-              : "text-gray-400 hover:text-white"
-              }`}
+            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-2 focus:outline-none ${
+              activeTab === "reviews"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/50 font-semibold"
+                : "text-zinc-400 hover:text-white hover:bg-white/[0.05]"
+            }`}
           >
-            ⭐ Customer Reviews
+            <Star className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 ${activeTab === 'reviews' ? 'scale-105 text-amber-300 fill-amber-300' : 'text-amber-400'}`} />
+            <span>Customer Reviews</span>
           </button>
+
           <a
             href="/autodailer"
-            className="px-4 py-1.5 rounded-md text-sm font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all duration-200 flex items-center gap-2 group focus:outline-none"
           >
-            📞 Sales Autodialer
+            <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 group-hover:scale-105 transition-transform duration-200" />
+            <span>Sales Autodialer</span>
           </a>
         </div>
 
         <a
           href="/"
-          className="text-sm font-medium text-gray-300 hover:text-white transition-colors duration-200"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-200 focus:outline-none"
         >
-          ← Back to Website
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Website</span>
         </a>
       </header>
 
