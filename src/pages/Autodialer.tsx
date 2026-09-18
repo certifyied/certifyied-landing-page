@@ -42,6 +42,7 @@ import {
 
 interface Lead {
   id?: string;
+  campaign_id?: string;
   name: string;
   phone: string;
   status?: 'pending' | 'dialing' | 'called' | 'skipped';
