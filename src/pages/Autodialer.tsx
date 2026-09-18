@@ -163,7 +163,14 @@ export default function Autodialer() {
   const isAdmin = currentUserRole === 'admin' || currentUserRole === 'global';
 
   // App & Navigation State
-  const [activeTab, setActiveTab] = useState<AutodialerTab>('queue');
+  const [activeTab, setActiveTab] = useState<AutodialerTab>(() => {
+    try {
+      const role = typeof localStorage !== 'undefined' ? localStorage.getItem('certifyied_autodialer_role') : null;
+      return (role === 'admin' || role === 'global') ? 'admin_overview' : 'queue';
+    } catch (e) {
+      return 'queue';
+    }
+  });
   const [isChrome, setIsChrome] = useState(true);
   const [showChromeAlert, setShowChromeAlert] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -213,6 +220,7 @@ export default function Autodialer() {
   const [callDuration, setCallDuration] = useState(0);
   const callDurationRef = useRef<number>(0);
   const timerIntervalRef = useRef<any>(null);
+  const isWindowReturnProcessingRef = useRef<boolean>(false);
 
   // Feedback Form State
   const [feedbackStatus, setFeedbackStatus] = useState<'Qualified Lead' | 'Interested' | 'Call Back' | 'Busy / No Answer' | 'Not Interested' | 'Wrong Number'>('Qualified Lead');
@@ -245,9 +253,14 @@ export default function Autodialer() {
 
   // UI Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<any>(null);
   const showToast = (msg: string) => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 4000);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage(null);
+      toastTimeoutRef.current = null;
+    }, 4000);
   };
 
   // Safe Telephone Trigger (prevents top-level window.location reload)
@@ -266,6 +279,25 @@ export default function Autodialer() {
       } catch (e) {}
     }, 500);
   };
+
+  // Master cleanup effect on mount & unmount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      setHasNotificationPermission(Notification.permission === 'granted');
+    }
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+        toastTimeoutRef.current = null;
+      }
+      Object.values(scheduledTimeoutsRef.current).forEach((t) => clearTimeout(t));
+      scheduledTimeoutsRef.current = {};
+    };
+  }, []);
 
   // Set default view based on role
   useEffect(() => {
@@ -809,11 +841,9 @@ export default function Autodialer() {
         })
         .catch(() => {});
 
-      loadAnalytics();
-      loadQualifiedLeads();
+      // Only fetch essentials on mount; tab-specific data is lazily loaded by activeTab effect
       loadCallbacks();
       fetchCampaigns();
-      if (isAdmin) fetchSalesTeam();
     }
   }, [authToken]);
 
@@ -1032,7 +1062,10 @@ export default function Autodialer() {
     callDurationRef.current = 0;
     setCallDuration(0);
 
-    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
 
     timerIntervalRef.current = setInterval(() => {
       const elapsed = Math.max(1, Math.round((Date.now() - now.getTime()) / 1000));
@@ -1070,16 +1103,24 @@ export default function Autodialer() {
     if (callingState !== 'dialing' || !callStartTime) return;
 
     const handleWindowReturn = () => {
+      if (isWindowReturnProcessingRef.current) return;
       if (document.visibilityState === 'visible' && callingState === 'dialing' && callStartTimeRef.current) {
         const returnedTime = new Date();
         const durationSec = Math.max(1, Math.round((returnedTime.getTime() - callStartTimeRef.current.getTime()) / 1000));
 
         // Don't auto-cut on initial micro focus shift (e.g. system Open Phone prompt)
         if (durationSec >= 4) {
-          if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+          isWindowReturnProcessingRef.current = true;
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+          }
           callDurationRef.current = durationSec;
           setCallDuration(durationSec);
           setCallingState('feedback');
+          setTimeout(() => {
+            isWindowReturnProcessingRef.current = false;
+          }, 600);
         }
       }
     };
@@ -1094,15 +1135,17 @@ export default function Autodialer() {
   }, [callingState, callStartTime]);
 
   const handleManualCutCall = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
     if (callStartTimeRef.current) {
       const returnedTime = new Date();
       const durationSec = Math.max(1, Math.round((returnedTime.getTime() - callStartTimeRef.current.getTime()) / 1000));
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
       callDurationRef.current = durationSec;
       setCallDuration(durationSec);
       setCallingState('feedback');
     } else {
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
       setCallingState('feedback');
     }
   };
@@ -3070,8 +3113,14 @@ export default function Autodialer() {
                         <button
                           key={opt.label}
                           type="button"
-                          onClick={() => setFeedbackStatus(opt.label as any)}
-                          className={`py-2 px-3 rounded-2xl text-xs font-semibold border transition-all text-center ${
+                          onClick={() => {
+                            setFeedbackStatus(opt.label as any);
+                            if (opt.label === 'Call Back' && !callbackTime) {
+                              const defaultTime = new Date(Date.now() + 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000);
+                              setCallbackTime(defaultTime.toISOString().slice(0, 16));
+                            }
+                          }}
+                          className={`py-2 px-3 rounded-2xl text-xs font-semibold border transition-all text-center focus:outline-none ${
                             feedbackStatus === opt.label
                               ? opt.color + ' ring-2 ring-[#0071e3]'
                               : 'border-zinc-200 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
@@ -3084,19 +3133,19 @@ export default function Autodialer() {
                   </div>
 
                   {feedbackStatus === 'Call Back' && (
-                    <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3 animate-in fade-in duration-200">
+                    <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-400 space-y-3 shadow-xs">
                       <div className="flex items-center justify-between">
-                        <label className="block text-xs uppercase tracking-wider text-amber-800 font-bold flex items-center gap-1.5">
-                          <Calendar className="w-4 h-4 text-amber-600" />
+                        <label className="text-xs uppercase tracking-wider text-amber-950 font-bold flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4 text-amber-700" />
                           <span>Scheduled Callback Time (Required)</span>
                         </label>
                         {!hasNotificationPermission && (
                           <button
                             type="button"
                             onClick={requestNotificationPermission}
-                            className="text-[11px] text-[#0071e3] font-medium flex items-center gap-1 hover:underline"
+                            className="text-[11px] text-[#0071e3] font-semibold flex items-center gap-1 hover:underline focus:outline-none"
                           >
-                            <Bell className="w-3 h-3" />
+                            <Bell className="w-3.5 h-3.5" />
                             Enable Browser Alerts
                           </button>
                         )}
@@ -3133,7 +3182,7 @@ export default function Autodialer() {
                               const target = new Date(preset.getMs() - new Date().getTimezoneOffset() * 60000);
                               setCallbackTime(target.toISOString().slice(0, 16));
                             }}
-                            className="py-1.5 px-2 rounded-xl bg-white border border-amber-200 hover:bg-amber-100/60 text-[11px] font-semibold text-amber-900 transition-colors shadow-xs"
+                            className="py-1.5 px-2 rounded-xl bg-white border border-amber-300 hover:bg-amber-100/80 active:scale-95 text-[11px] font-bold text-amber-950 transition-all shadow-xs focus:outline-none"
                           >
                             {preset.label}
                           </button>
@@ -3141,18 +3190,18 @@ export default function Autodialer() {
                       </div>
 
                       <div className="relative">
-                        <Clock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-amber-600" />
+                        <Clock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-amber-700 pointer-events-none" />
                         <input
                           type="datetime-local"
                           required
                           value={callbackTime}
                           onChange={(e) => setCallbackTime(e.target.value)}
-                          className="w-full pl-10 pr-4 py-2.5 bg-white border border-amber-300 rounded-2xl text-xs text-[#1d1d1f] font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
+                          className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-amber-400 rounded-xl text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
                         />
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-[11px] text-amber-800">
-                        <Bell className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-amber-900 font-medium">
+                        <Bell className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                         <span>Instant confirmation email will be sent to your inbox + browser reminder 15 mins prior.</span>
                       </div>
                     </div>
