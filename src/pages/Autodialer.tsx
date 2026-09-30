@@ -151,9 +151,20 @@ export default function Autodialer() {
   const endpointBase = `${apiBase}/adminApiBlog/api/autodialer`;
 
   // Auth State
-  const [authToken, setAuthToken] = useState<string>(() => localStorage.getItem('certifyied_autodialer_token') || '');
-  const [currentUserEmail, setCurrentUserEmail] = useState<string>(() => localStorage.getItem('certifyied_autodialer_email') || '');
-  const [currentUserRole, setCurrentUserRole] = useState<string>(() => localStorage.getItem('certifyied_autodialer_role') || 'sales');
+  const [authToken, setAuthToken] = useState<string>(() => 
+    localStorage.getItem('certifyied_autodialer_token') || 
+    localStorage.getItem('blogToken') || 
+    localStorage.getItem('certToken') || 
+    localStorage.getItem('auth_token') || ''
+  );
+  const [currentUserEmail, setCurrentUserEmail] = useState<string>(() => 
+    localStorage.getItem('certifyied_autodialer_email') || 
+    localStorage.getItem('userEmail') || ''
+  );
+  const [currentUserRole, setCurrentUserRole] = useState<string>(() => 
+    localStorage.getItem('certifyied_autodialer_role') || 
+    localStorage.getItem('userRole') || 'sales'
+  );
   const [loginEmail, setLoginEmail] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [magicLinkSentTo, setMagicLinkSentTo] = useState<string | null>(null);
