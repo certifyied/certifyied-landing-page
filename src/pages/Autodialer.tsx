@@ -262,6 +262,7 @@ export default function Autodialer() {
   const [customStartDate, setCustomStartDate] = useState<string>('');
   const [customEndDate, setCustomEndDate] = useState<string>('');
   const [showCustomDatePicker, setShowCustomDatePicker] = useState<boolean>(false);
+  const [selectedOutcomeFilter, setSelectedOutcomeFilter] = useState<string | null>(null);
 
   // UI Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -1613,6 +1614,13 @@ export default function Autodialer() {
     return true;
   });
 
+  // Filter recent calls by clicked call outcome category
+  const filteredOutcomeCalls = recentCallLogs.filter((log) => {
+    if (!selectedOutcomeFilter) return true;
+    const st = (log.feedback_status || 'Called').toLowerCase().trim();
+    return st === selectedOutcomeFilter.toLowerCase().trim();
+  });
+
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] font-apple flex flex-col selection:bg-[#0071e3] selection:text-white">
       {/* Toast Notification */}
@@ -2068,7 +2076,7 @@ export default function Autodialer() {
               </div>
             </div>
 
-            {(selectedRepFilter !== 'all' || dateFilter !== 'all') && (
+            {(selectedRepFilter !== 'all' || dateFilter !== 'all' || selectedOutcomeFilter !== null) && (
               <div className="p-3.5 rounded-2xl bg-[#0071e3]/10 border border-[#0071e3]/20 flex flex-wrap items-center justify-between gap-2 text-xs text-[#0071e3]">
                 <div className="flex items-center gap-3">
                   <Filter className="w-4 h-4 shrink-0" />
@@ -2083,6 +2091,19 @@ export default function Autodialer() {
                         Date: <strong>{dateFilter === 'custom' ? `${customStartDate || 'Start'} → ${customEndDate || 'End'}` : dateFilter.toUpperCase()}</strong>
                       </span>
                     )}
+                    {selectedOutcomeFilter !== null && (
+                      <span className="px-2.5 py-1 rounded-xl bg-white border border-[#0071e3]/20 font-medium flex items-center gap-1.5">
+                        Outcome: <strong>{selectedOutcomeFilter}</strong>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOutcomeFilter(null)}
+                          className="hover:text-red-500 cursor-pointer ml-0.5"
+                          title="Clear outcome filter"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
                   </div>
                 </div>
                 <button
@@ -2090,6 +2111,7 @@ export default function Autodialer() {
                     setSelectedRepFilter('all');
                     setDateFilter('all');
                     setShowCustomDatePicker(false);
+                    setSelectedOutcomeFilter(null);
                     loadAnalytics('all', 'all');
                   }}
                   className="px-3 py-1 rounded-xl bg-white text-[#0071e3] font-semibold hover:bg-zinc-50 shadow-sm transition-all"
@@ -2265,28 +2287,115 @@ export default function Autodialer() {
             </div>
 
             <div className="bg-white rounded-3xl p-6 border border-black/10 shadow-sm">
-              <h3 className="text-xs uppercase tracking-wider text-[#86868b] font-semibold mb-4">
-                Call Outcome Categorization
-              </h3>
-              <div className="flex flex-wrap gap-2.5">
-                {Object.entries(feedbackBreakdown).map(([status, count]) => (
-                  <div
-                    key={status}
-                    className="px-3.5 py-2 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center gap-2 text-xs"
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider text-[#86868b] font-semibold">
+                    Call Outcome Categorization
+                  </h3>
+                  <p className="text-[11px] text-[#86868b] mt-0.5">Click any category to filter the recent calls list below</p>
+                </div>
+                {selectedOutcomeFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOutcomeFilter(null)}
+                    className="px-2.5 py-1 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-xs text-[#0071e3] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <span className="text-zinc-700 font-medium">{status}:</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#0071e3]/10 text-[#0071e3] font-bold">
-                      {count}
-                    </span>
-                  </div>
-                ))}
+                    <X className="w-3.5 h-3.5" />
+                    Reset Filter
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOutcomeFilter(null)}
+                  className={`px-3.5 py-2 rounded-2xl border flex items-center gap-2 text-xs font-medium transition-all cursor-pointer ${
+                    selectedOutcomeFilter === null
+                      ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-sm'
+                      : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100 hover:border-zinc-300'
+                  }`}
+                >
+                  <span>All Calls</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full font-bold text-[11px] ${
+                      selectedOutcomeFilter === null
+                        ? 'bg-white/20 text-white'
+                        : 'bg-zinc-200 text-zinc-700'
+                    }`}
+                  >
+                    {recentCallLogs.length}
+                  </span>
+                </button>
+
+                {Object.entries(feedbackBreakdown).map(([status, count]) => {
+                  const isSelected = selectedOutcomeFilter?.toLowerCase() === status.toLowerCase();
+                  return (
+                    <button
+                      type="button"
+                      key={status}
+                      onClick={() =>
+                        setSelectedOutcomeFilter((prev) =>
+                          prev?.toLowerCase() === status.toLowerCase() ? null : status
+                        )
+                      }
+                      className={`px-3.5 py-2 rounded-2xl border flex items-center gap-2 text-xs font-medium transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#0071e3] text-white border-[#0071e3] shadow-md ring-2 ring-[#0071e3]/20 scale-[1.02]'
+                          : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100 hover:border-zinc-300 hover:shadow-xs active:scale-95'
+                      }`}
+                    >
+                      <span className={isSelected ? 'font-bold' : 'font-medium'}>{status}:</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full font-bold text-[11px] ${
+                          isSelected
+                            ? 'bg-white/25 text-white'
+                            : 'bg-[#0071e3]/10 text-[#0071e3]'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                      {isSelected && <X className="w-3 h-3 text-white/80 ml-0.5" />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             <div className="bg-white rounded-3xl border border-black/10 overflow-hidden shadow-sm">
-              <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
-                <h3 className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">Recent Outbound Calls</h3>
-                <span className="text-xs text-[#86868b]">Showing latest activity</span>
+              <div className="p-4 border-b border-zinc-200 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">Recent Outbound Calls</h3>
+                  {selectedOutcomeFilter && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#0071e3]/10 text-[#0071e3] border border-[#0071e3]/20 flex items-center gap-1">
+                      <span>Outcome: {selectedOutcomeFilter}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedOutcomeFilter(null)}
+                        className="hover:text-red-500 cursor-pointer ml-0.5"
+                        title="Clear outcome filter"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-[#86868b]">
+                    {selectedOutcomeFilter
+                      ? `Showing ${filteredOutcomeCalls.length} of ${recentCallLogs.length} calls`
+                      : 'Showing latest activity'}
+                  </span>
+                  {selectedOutcomeFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedOutcomeFilter(null)}
+                      className="text-xs text-[#0071e3] hover:underline font-semibold cursor-pointer"
+                    >
+                      Show All
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
@@ -2301,7 +2410,7 @@ export default function Autodialer() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100 text-zinc-700">
-                    {recentCallLogs.map((log) => (
+                    {filteredOutcomeCalls.map((log) => (
                       <tr key={log.id} className="hover:bg-zinc-50 transition-colors">
                         <td className="py-3 px-4 font-semibold text-[#1d1d1f]">{log.lead_name}</td>
                         <td className="py-3 px-4 font-mono text-zinc-600">{log.phone}</td>
@@ -2329,10 +2438,23 @@ export default function Autodialer() {
                         <td className="py-3 px-4 max-w-xs truncate text-zinc-600">{log.feedback_notes || '—'}</td>
                       </tr>
                     ))}
-                    {recentCallLogs.length === 0 && (
+                    {filteredOutcomeCalls.length === 0 && (
                       <tr>
                         <td colSpan={6} className="py-8 text-center text-zinc-400 text-xs">
-                          No calls recorded yet.
+                          {selectedOutcomeFilter ? (
+                            <div className="flex flex-col items-center justify-center gap-1.5 py-2">
+                              <span>No recent calls matching "{selectedOutcomeFilter}".</span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedOutcomeFilter(null)}
+                                className="text-[#0071e3] font-semibold hover:underline cursor-pointer"
+                              >
+                                Show All Calls ({recentCallLogs.length})
+                              </button>
+                            </div>
+                          ) : (
+                            'No calls recorded yet.'
+                          )}
                         </td>
                       </tr>
                     )}
@@ -3747,28 +3869,115 @@ export default function Autodialer() {
             </div>
 
             <div className="bg-white rounded-3xl p-6 border border-black/10 shadow-sm">
-              <h3 className="text-xs uppercase tracking-wider text-[#86868b] font-semibold mb-4">
-                Call Outcome Breakdown
-              </h3>
-              <div className="flex flex-wrap gap-2.5">
-                {Object.entries(feedbackBreakdown).map(([status, count]) => (
-                  <div
-                    key={status}
-                    className="px-3.5 py-2 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center gap-2 text-xs"
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider text-[#86868b] font-semibold">
+                    Call Outcome Breakdown
+                  </h3>
+                  <p className="text-[11px] text-[#86868b] mt-0.5">Click any outcome pill to filter your call history below</p>
+                </div>
+                {selectedOutcomeFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOutcomeFilter(null)}
+                    className="px-2.5 py-1 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-xs text-[#0071e3] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <span className="text-zinc-700 font-medium">{status}:</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#0071e3]/10 text-[#0071e3] font-bold">
-                      {count}
-                    </span>
-                  </div>
-                ))}
+                    <X className="w-3.5 h-3.5" />
+                    Reset Filter
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOutcomeFilter(null)}
+                  className={`px-3.5 py-2 rounded-2xl border flex items-center gap-2 text-xs font-medium transition-all cursor-pointer ${
+                    selectedOutcomeFilter === null
+                      ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-sm'
+                      : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100 hover:border-zinc-300'
+                  }`}
+                >
+                  <span>All Calls</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full font-bold text-[11px] ${
+                      selectedOutcomeFilter === null
+                        ? 'bg-white/20 text-white'
+                        : 'bg-zinc-200 text-zinc-700'
+                    }`}
+                  >
+                    {recentCallLogs.length}
+                  </span>
+                </button>
+
+                {Object.entries(feedbackBreakdown).map(([status, count]) => {
+                  const isSelected = selectedOutcomeFilter?.toLowerCase() === status.toLowerCase();
+                  return (
+                    <button
+                      type="button"
+                      key={status}
+                      onClick={() =>
+                        setSelectedOutcomeFilter((prev) =>
+                          prev?.toLowerCase() === status.toLowerCase() ? null : status
+                        )
+                      }
+                      className={`px-3.5 py-2 rounded-2xl border flex items-center gap-2 text-xs font-medium transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#0071e3] text-white border-[#0071e3] shadow-md ring-2 ring-[#0071e3]/20 scale-[1.02]'
+                          : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100 hover:border-zinc-300 hover:shadow-xs active:scale-95'
+                      }`}
+                    >
+                      <span className={isSelected ? 'font-bold' : 'font-medium'}>{status}:</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full font-bold text-[11px] ${
+                          isSelected
+                            ? 'bg-white/25 text-white'
+                            : 'bg-[#0071e3]/10 text-[#0071e3]'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                      {isSelected && <X className="w-3 h-3 text-white/80 ml-0.5" />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             <div className="bg-white rounded-3xl border border-black/10 overflow-hidden shadow-sm">
-              <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
-                <h3 className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">My Recent Call History</h3>
-                <span className="text-xs text-[#86868b]">Personal activity log</span>
+              <div className="p-4 border-b border-zinc-200 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">My Recent Call History</h3>
+                  {selectedOutcomeFilter && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#0071e3]/10 text-[#0071e3] border border-[#0071e3]/20 flex items-center gap-1">
+                      <span>Outcome: {selectedOutcomeFilter}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedOutcomeFilter(null)}
+                        className="hover:text-red-500 cursor-pointer ml-0.5"
+                        title="Clear outcome filter"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-[#86868b]">
+                    {selectedOutcomeFilter
+                      ? `Showing ${filteredOutcomeCalls.length} of ${recentCallLogs.length} calls`
+                      : 'Personal activity log'}
+                  </span>
+                  {selectedOutcomeFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedOutcomeFilter(null)}
+                      className="text-xs text-[#0071e3] hover:underline font-semibold cursor-pointer"
+                    >
+                      Show All
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
@@ -3782,7 +3991,7 @@ export default function Autodialer() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100 text-zinc-700">
-                    {recentCallLogs.map((log) => (
+                    {filteredOutcomeCalls.map((log) => (
                       <tr key={log.id} className="hover:bg-zinc-50 transition-colors">
                         <td className="py-3 px-4 font-semibold text-[#1d1d1f]">{log.lead_name}</td>
                         <td className="py-3 px-4 font-mono text-zinc-600">{log.phone}</td>
@@ -3803,10 +4012,23 @@ export default function Autodialer() {
                         <td className="py-3 px-4 max-w-xs truncate text-zinc-600">{log.feedback_notes || '—'}</td>
                       </tr>
                     ))}
-                    {recentCallLogs.length === 0 && (
+                    {filteredOutcomeCalls.length === 0 && (
                       <tr>
                         <td colSpan={5} className="py-8 text-center text-zinc-400 text-xs">
-                          No calls recorded yet.
+                          {selectedOutcomeFilter ? (
+                            <div className="flex flex-col items-center justify-center gap-1.5 py-2">
+                              <span>No recent calls matching "{selectedOutcomeFilter}".</span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedOutcomeFilter(null)}
+                                className="text-[#0071e3] font-semibold hover:underline cursor-pointer"
+                              >
+                                Show All Calls ({recentCallLogs.length})
+                              </button>
+                            </div>
+                          ) : (
+                            'No calls recorded yet.'
+                          )}
                         </td>
                       </tr>
                     )}
