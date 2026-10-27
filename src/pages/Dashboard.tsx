@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   FileEdit, 
@@ -79,7 +79,7 @@ export default function Dashboard() {
   const magicToken = params.get("magic_token");
 
   const ssoToken = typeof localStorage !== "undefined" 
-    ? (localStorage.getItem("blogToken") || localStorage.getItem("certToken") || localStorage.getItem("auth_token") || "")
+    ? (localStorage.getItem("blogToken") || localStorage.getItem("certToken") || localStorage.getItem("auth_token") || localStorage.getItem("certifyied_autodialer_token") || "")
     : "";
 
   let resolvedBlogUrl = `${blogUrl}${blogUrl.includes("?") ? "&" : "?"}parent_origin=${encodeURIComponent(parentOrigin)}`;
@@ -89,6 +89,41 @@ export default function Dashboard() {
   if (magicToken) {
     resolvedBlogUrl += `&magic_token=${encodeURIComponent(magicToken)}`;
   }
+
+  const blogIframeRef = useRef<HTMLIFrameElement>(null);
+
+  const sendTokenToBlogIframe = useCallback(() => {
+    if (blogIframeRef.current && blogIframeRef.current.contentWindow && ssoToken) {
+      try {
+        blogIframeRef.current.contentWindow.postMessage({
+          type: "SET_AUTH_TOKEN",
+          token: ssoToken,
+          role: role,
+          email: userEmail
+        }, "*");
+      } catch (e) {}
+    }
+  }, [ssoToken, role, userEmail]);
+
+  useEffect(() => {
+    const handleWindowMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === "REQUEST_AUTH_TOKEN") {
+        sendTokenToBlogIframe();
+      }
+      if (event.data && event.data.type === "LOGOUT") {
+        handleLogout();
+      }
+    };
+    window.addEventListener("message", handleWindowMessage);
+    return () => window.removeEventListener("message", handleWindowMessage);
+  }, [sendTokenToBlogIframe]);
+
+  useEffect(() => {
+    if (activeServiceId === "blog") {
+      const timer = setTimeout(() => sendTokenToBlogIframe(), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [activeServiceId, sendTokenToBlogIframe]);
 
   // Icon Resolver
   const getIcon = (iconName: string) => {
@@ -324,7 +359,9 @@ export default function Dashboard() {
         <div className="flex-1 w-full h-full relative bg-slate-50 overflow-auto">
           {activeServiceId === "blog" && (
             <iframe
+              ref={blogIframeRef}
               src={resolvedBlogUrl}
+              onLoad={sendTokenToBlogIframe}
               className="absolute inset-0 w-full h-full border-0 bg-white"
               title="Blog Admin Portal"
               allow="clipboard-read; clipboard-write; geolocation"

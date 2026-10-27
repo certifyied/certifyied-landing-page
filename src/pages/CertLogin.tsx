@@ -89,7 +89,7 @@ export default function CertLogin() {
       sub: userEmail || "admin@certifyied.com", 
       email: userEmail || "admin@certifyied.com",
       role: role, 
-      exp: Date.now() + (30 * 24 * 60 * 60 * 1000)
+      exp: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60)
     }));
     return `${header}.${payload}.signature`;
   };
