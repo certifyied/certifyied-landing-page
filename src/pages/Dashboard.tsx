@@ -16,6 +16,7 @@ import anotherCertifyiedLogo from "@/assets/another_certifyied_logo.png";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { getServicesForRole, ServiceDefinition } from "@/config/rolesConfig";
+import { BlogCmsAdmin } from "@/components/blog/BlogCmsAdmin";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -90,40 +91,15 @@ export default function Dashboard() {
     resolvedBlogUrl += `&magic_token=${encodeURIComponent(magicToken)}`;
   }
 
-  const blogIframeRef = useRef<HTMLIFrameElement>(null);
-
-  const sendTokenToBlogIframe = useCallback(() => {
-    if (blogIframeRef.current && blogIframeRef.current.contentWindow && ssoToken) {
-      try {
-        blogIframeRef.current.contentWindow.postMessage({
-          type: "SET_AUTH_TOKEN",
-          token: ssoToken,
-          role: role,
-          email: userEmail
-        }, "*");
-      } catch (e) {}
-    }
-  }, [ssoToken, role, userEmail]);
-
   useEffect(() => {
     const handleWindowMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === "REQUEST_AUTH_TOKEN") {
-        sendTokenToBlogIframe();
-      }
       if (event.data && event.data.type === "LOGOUT") {
         handleLogout();
       }
     };
     window.addEventListener("message", handleWindowMessage);
     return () => window.removeEventListener("message", handleWindowMessage);
-  }, [sendTokenToBlogIframe]);
-
-  useEffect(() => {
-    if (activeServiceId === "blog") {
-      const timer = setTimeout(() => sendTokenToBlogIframe(), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [activeServiceId, sendTokenToBlogIframe]);
+  }, []);
 
   // Icon Resolver
   const getIcon = (iconName: string) => {
@@ -358,14 +334,13 @@ export default function Dashboard() {
         {/* Service Frame Container */}
         <div className="flex-1 w-full h-full relative bg-slate-50 overflow-auto">
           {activeServiceId === "blog" && (
-            <iframe
-              ref={blogIframeRef}
-              src={resolvedBlogUrl}
-              onLoad={sendTokenToBlogIframe}
-              className="absolute inset-0 w-full h-full border-0 bg-white"
-              title="Blog Admin Portal"
-              allow="clipboard-read; clipboard-write; geolocation"
-            />
+            <div className="w-full h-full overflow-y-auto">
+              <BlogCmsAdmin
+                role={role}
+                userEmail={userEmail}
+                token={ssoToken}
+              />
+            </div>
           )}
 
           {activeServiceId === "seo" && (
