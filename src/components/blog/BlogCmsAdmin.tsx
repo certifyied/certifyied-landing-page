@@ -653,7 +653,7 @@ export const BlogCmsAdmin: React.FC<BlogCmsAdminProps> = ({
 <div id="certifyied-blog-reader" data-project-id="${selectedProjectId}"></div>
 <script src="${cdnHost}/blog-embed.js" async defer></script>`;
 
-  const sitemapCdnUrl = `${blogApiBaseUrl}/sitemap.xml?projectId=${selectedProjectId}`;
+  const sitemapCdnUrl = `${blogApiBaseUrl}/api/sitemap.xml?projectId=${selectedProjectId}`;
 
   return (
     <div className="w-full min-h-screen bg-slate-50 text-slate-800 p-4 sm:p-6 md:p-8 font-sans">
