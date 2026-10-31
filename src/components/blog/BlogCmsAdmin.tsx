@@ -18,7 +18,9 @@ import {
   Loader2,
   AlertCircle,
   Eye,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -180,6 +182,11 @@ export const BlogCmsAdmin: React.FC<BlogCmsAdminProps> = ({
 
   // State: Clipboard copies
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  // State: Collapsible snippet examples
+  const [showHomeExample, setShowHomeExample] = useState<boolean>(false);
+  const [showReaderExample, setShowReaderExample] = useState<boolean>(false);
+  const [showContactExample, setShowContactExample] = useState<boolean>(false);
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -654,6 +661,170 @@ export const BlogCmsAdmin: React.FC<BlogCmsAdminProps> = ({
 <script src="${cdnHost}/blog-embed.js" async defer></script>`;
 
   const sitemapCdnUrl = `${blogApiBaseUrl}/api/sitemap.xml?projectId=${selectedProjectId}`;
+
+  const homeExampleHtml = `<!-- Example: Integrate Blog Grid in an HTML / Vanilla JS page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Our Latest Articles</title>
+</head>
+<body>
+  <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 40px 16px;">
+    <h2>Latest Stories</h2>
+    <!-- 1. Container where 3x3 blog feed renders -->
+    <div id="certifyied-blog-feed" data-project-id="${selectedProjectId}" data-limit="9"></div>
+  </div>
+
+  <!-- 2. Certifyied Blog CDN Embed Script -->
+  <script src="${cdnHost}/blog-embed.js" async defer></script>
+</body>
+</html>`;
+
+  const readerExampleHtml = `<!-- Example: Dedicated Blog Post Reader Page (/blog/[slug]) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Article Reader</title>
+</head>
+<body>
+  <div class="container" style="max-width: 860px; margin: 0 auto; padding: 40px 16px;">
+    <!-- 1. Reader Container - automatically loads full post from URL slug / query param -->
+    <div id="certifyied-blog-reader" data-project-id="${selectedProjectId}"></div>
+  </div>
+
+  <!-- 2. Certifyied Blog CDN Embed Script -->
+  <script src="${cdnHost}/blog-embed.js" async defer></script>
+</body>
+</html>`;
+
+  const contactCurlExample = `curl -X POST "${blogApiBaseUrl}/api/contact?projectId=${selectedProjectId}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "sender_name": "Jane Smith",
+    "sender_email": "jane@example.com",
+    "phone_number": "+1 (555) 234-5678",
+    "subject": "Inquiry about your services",
+    "message": "Hello, I would like to schedule a consultation regarding your services."
+  }'`;
+
+  const contactJsExample = `// JavaScript / Fetch Example
+async function submitContactForm(event) {
+  event.preventDefault();
+
+  const payload = {
+    sender_name: "Jane Smith",
+    sender_email: "jane@example.com",
+    phone_number: "+1 (555) 234-5678",
+    subject: "Inquiry about your services",
+    message: "Hello, I would like to schedule a consultation regarding your services."
+  };
+
+  try {
+    const res = await fetch('${blogApiBaseUrl}/api/contact?projectId=${selectedProjectId}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('Message sent successfully!');
+    } else {
+      alert('Error: ' + (data.error || 'Failed to submit form'));
+    }
+  } catch (err) {
+    console.error('Submission failed:', err);
+    alert('Network error occurred.');
+  }
+}`;
+
+  const contactReactExample = `// React / Next.js Component Example
+import React, { useState } from 'react';
+
+export function ContactForm() {
+  const [formData, setFormData] = useState({
+    sender_name: '',
+    sender_email: '',
+    phone_number: '',
+    subject: '',
+    message: ''
+  });
+  const [status, setStatus] = useState({ loading: false, success: false, error: '' });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus({ loading: true, success: false, error: '' });
+
+    try {
+      const response = await fetch('${blogApiBaseUrl}/api/contact?projectId=${selectedProjectId}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Failed to send');
+
+      setStatus({ loading: false, success: true, error: '' });
+      setFormData({ sender_name: '', sender_email: '', phone_number: '', subject: '', message: '' });
+    } catch (err: any) {
+      setStatus({ loading: false, success: false, error: err.message });
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
+      <input
+        type="text"
+        placeholder="Your Name"
+        value={formData.sender_name}
+        onChange={e => setFormData({ ...formData, sender_name: e.target.value })}
+        className="w-full p-2 border rounded"
+      />
+      <input
+        type="email"
+        required
+        placeholder="Your Email *"
+        value={formData.sender_email}
+        onChange={e => setFormData({ ...formData, sender_email: e.target.value })}
+        className="w-full p-2 border rounded"
+      />
+      <input
+        type="tel"
+        placeholder="Phone Number"
+        value={formData.phone_number}
+        onChange={e => setFormData({ ...formData, phone_number: e.target.value })}
+        className="w-full p-2 border rounded"
+      />
+      <input
+        type="text"
+        placeholder="Subject"
+        value={formData.subject}
+        onChange={e => setFormData({ ...formData, subject: e.target.value })}
+        className="w-full p-2 border rounded"
+      />
+      <textarea
+        required
+        placeholder="Message *"
+        rows={4}
+        value={formData.message}
+        onChange={e => setFormData({ ...formData, message: e.target.value })}
+        className="w-full p-2 border rounded"
+      />
+      <button
+        type="submit"
+        disabled={status.loading}
+        className="px-4 py-2 bg-[#467222] text-white rounded font-medium disabled:opacity-50"
+      >
+        {status.loading ? 'Sending...' : 'Send Message'}
+      </button>
+      {status.success && <p className="text-sm text-green-600">Message sent successfully!</p>}
+      {status.error && <p className="text-sm text-red-600">{status.error}</p>}
+    </form>
+  );
+}`;
 
   return (
     <div className="w-full min-h-screen bg-slate-50 text-slate-800 p-4 sm:p-6 md:p-8 font-sans">
@@ -1384,6 +1555,37 @@ export const BlogCmsAdmin: React.FC<BlogCmsAdminProps> = ({
               <pre className="p-4 bg-slate-900 text-emerald-300 font-mono text-xs rounded-xl overflow-x-auto whitespace-pre-wrap">
                 {homeSnippet}
               </pre>
+
+              {/* Collapsible Example */}
+              <div className="pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowHomeExample(prev => !prev)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#467222] transition"
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  <span>{showHomeExample ? "Hide Implementation Example" : "View Implementation Example (HTML)"}</span>
+                  {showHomeExample ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+
+                {showHomeExample && (
+                  <div className="mt-3 p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                    <div className="flex justify-between items-center text-xs text-slate-400">
+                      <span className="font-mono">index.html (Vanilla / HTML Example)</span>
+                      <button
+                        onClick={() => copyToClipboard(homeExampleHtml, "example-home")}
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition"
+                      >
+                        {copiedKey === "example-home" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        {copiedKey === "example-home" ? "Copied" : "Copy Code"}
+                      </button>
+                    </div>
+                    <pre className="p-3 bg-slate-900 text-emerald-300 font-mono text-xs rounded-lg overflow-x-auto whitespace-pre-wrap">
+                      {homeExampleHtml}
+                    </pre>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Blog Post Reader Snippet */}
@@ -1406,6 +1608,37 @@ export const BlogCmsAdmin: React.FC<BlogCmsAdminProps> = ({
               <pre className="p-4 bg-slate-900 text-emerald-300 font-mono text-xs rounded-xl overflow-x-auto whitespace-pre-wrap">
                 {readerSnippet}
               </pre>
+
+              {/* Collapsible Example */}
+              <div className="pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowReaderExample(prev => !prev)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#467222] transition"
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  <span>{showReaderExample ? "Hide Implementation Example" : "View Implementation Example (Single Post HTML)"}</span>
+                  {showReaderExample ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+
+                {showReaderExample && (
+                  <div className="mt-3 p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                    <div className="flex justify-between items-center text-xs text-slate-400">
+                      <span className="font-mono">blog-post.html (Single Post Reader Example)</span>
+                      <button
+                        onClick={() => copyToClipboard(readerExampleHtml, "example-reader")}
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition"
+                      >
+                        {copiedKey === "example-reader" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        {copiedKey === "example-reader" ? "Copied" : "Copy Code"}
+                      </button>
+                    </div>
+                    <pre className="p-3 bg-slate-900 text-emerald-300 font-mono text-xs rounded-lg overflow-x-auto whitespace-pre-wrap">
+                      {readerExampleHtml}
+                    </pre>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Contact Form API */}
@@ -1432,6 +1665,74 @@ export const BlogCmsAdmin: React.FC<BlogCmsAdminProps> = ({
                 >
                   {copiedKey === "contact" ? "Copied" : "Copy"}
                 </button>
+              </div>
+
+              {/* Collapsible Example Menu for Contact Endpoint */}
+              <div className="pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowContactExample(prev => !prev)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#467222] transition"
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  <span>{showContactExample ? "Hide API Examples & Payload" : "View Integration Examples (cURL, Fetch, React)"}</span>
+                  {showContactExample ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+
+                {showContactExample && (
+                  <div className="mt-3 space-y-4 pt-2">
+                    {/* cURL Example */}
+                    <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                      <div className="flex justify-between items-center text-xs text-slate-400">
+                        <span className="font-mono text-emerald-400">cURL Example</span>
+                        <button
+                          onClick={() => copyToClipboard(contactCurlExample, "example-curl")}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition"
+                        >
+                          {copiedKey === "example-curl" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                          {copiedKey === "example-curl" ? "Copied" : "Copy cURL"}
+                        </button>
+                      </div>
+                      <pre className="p-3 bg-slate-900 text-emerald-300 font-mono text-xs rounded-lg overflow-x-auto whitespace-pre-wrap">
+                        {contactCurlExample}
+                      </pre>
+                    </div>
+
+                    {/* JavaScript Fetch Example */}
+                    <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                      <div className="flex justify-between items-center text-xs text-slate-400">
+                        <span className="font-mono text-blue-400">JavaScript / Fetch Example</span>
+                        <button
+                          onClick={() => copyToClipboard(contactJsExample, "example-js")}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition"
+                        >
+                          {copiedKey === "example-js" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                          {copiedKey === "example-js" ? "Copied" : "Copy Code"}
+                        </button>
+                      </div>
+                      <pre className="p-3 bg-slate-900 text-blue-300 font-mono text-xs rounded-lg overflow-x-auto whitespace-pre-wrap">
+                        {contactJsExample}
+                      </pre>
+                    </div>
+
+                    {/* React Component Example */}
+                    <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                      <div className="flex justify-between items-center text-xs text-slate-400">
+                        <span className="font-mono text-purple-400">React / Next.js Component Example</span>
+                        <button
+                          onClick={() => copyToClipboard(contactReactExample, "example-react")}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition"
+                        >
+                          {copiedKey === "example-react" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                          {copiedKey === "example-react" ? "Copied" : "Copy Component"}
+                        </button>
+                      </div>
+                      <pre className="p-3 bg-slate-900 text-purple-200 font-mono text-xs rounded-lg overflow-x-auto whitespace-pre-wrap">
+                        {contactReactExample}
+                      </pre>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
